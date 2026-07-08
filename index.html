@@ -54,10 +54,13 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* Password toggle */
-        .pwd-toggle { cursor:pointer; user-select:none; padding:0 8px; }
+        .forgot-tab-btn.active { border-bottom: 2px solid #2ECC71; color: #2ECC71; font-weight: 600; }
+        .forgot-tab-btn { cursor:pointer; transition: all 0.2s; }
+        .forgot-tab-btn:hover { color: #2ECC71; }
+        .forgot-tab-content { display: none; }
+        .forgot-tab-content.active { display: block; }
 
-        /* Forgot password link */
+        .pwd-toggle { cursor:pointer; user-select:none; padding:0 8px; }
         .forgot-link { color: #3498DB; cursor:pointer; font-size:0.85rem; }
         .forgot-link:hover { text-decoration:underline; }
     </style>
@@ -65,7 +68,7 @@
 <body>
 
     <!-- ============================================================ -->
-    <!-- หน้า Login (เพิ่มปุ่มลืมรหัสผ่าน) -->
+    <!-- หน้า Login (เพิ่มลิงก์ลืมรหัสผ่าน) -->
     <!-- ============================================================ -->
     <div id="loginPage" class="min-h-screen bg-health-gradient flex items-center justify-center p-4">
         <div class="card-gym max-w-md w-full p-8">
@@ -85,7 +88,6 @@
                 </div>
                 <div class="flex justify-between items-center">
                     <button type="submit" class="bg-gradient-to-r from-green-500 to-blue-500 text-white py-3 px-6 rounded-xl font-semibold hover:opacity-90 transition-opacity">เข้าสู่ระบบ 🚀</button>
-                    <!-- ★ เพิ่มปุ่มลืมรหัสผ่าน -->
                     <span class="forgot-link" onclick="showForgotPasswordModal()">🔑 ลืมรหัสผ่าน?</span>
                 </div>
             </form>
@@ -95,7 +97,7 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- Modal ลืมรหัสผ่าน (Forgot Password) -->
+    <!-- Modal ลืมรหัสผ่าน (ปรับเพิ่มแท็บ Admin) -->
     <!-- ============================================================ -->
     <div id="forgotPasswordModal" class="modal-overlay">
         <div class="modal-box">
@@ -103,22 +105,50 @@
                 <h3 class="font-bold text-lg text-gray-800 dark:text-white">🔑 กู้รหัสผ่าน</h3>
                 <button onclick="closeForgotPasswordModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl">&times;</button>
             </div>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">กรอกรหัสสมาชิกหรือเบอร์โทรศัพท์เพื่อดูรหัสผ่าน</p>
-            <div class="space-y-3">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">รหัสสมาชิก หรือ เบอร์โทร</label>
-                    <input type="text" id="forgotSearchInput" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="M-0001 หรือ 081-111-1111">
-                </div>
-                <button onclick="searchForgotPassword()" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-semibold transition">ค้นหารหัสผ่าน</button>
+            <!-- Tabs -->
+            <div class="flex border-b border-gray-200 dark:border-gray-700 mb-4 gap-2">
+                <button class="forgot-tab-btn active px-4 py-2 text-sm font-medium" data-tab="forgotMember" onclick="switchForgotTab('forgotMember', this)">👤 สมาชิก</button>
+                <button class="forgot-tab-btn px-4 py-2 text-sm font-medium text-gray-500 dark:text-gray-400" data-tab="forgotAdmin" onclick="switchForgotTab('forgotAdmin', this)">👑 Admin</button>
             </div>
-            <div id="forgotResult" class="mt-4 hidden">
-                <!-- จะแสดงผลลัพธ์ -->
+
+            <!-- Tab: สมาชิก -->
+            <div id="forgotMember" class="forgot-tab-content active">
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">กรอกรหัสสมาชิกหรือเบอร์โทรศัพท์เพื่อดูรหัสผ่าน</p>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">รหัสสมาชิก หรือ เบอร์โทร</label>
+                        <input type="text" id="forgotSearchInput" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="M-0001 หรือ 081-111-1111">
+                    </div>
+                    <button onclick="searchForgotPassword()" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-semibold transition">ค้นหารหัสผ่าน</button>
+                </div>
+                <div id="forgotResult" class="mt-4 hidden"></div>
+            </div>
+
+            <!-- Tab: Admin -->
+            <div id="forgotAdmin" class="forgot-tab-content">
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">กรอกรหัสกู้คืน Admin เพื่อตั้งรหัสผ่านใหม่</p>
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">รหัสกู้คืน Admin</label>
+                        <input type="password" id="adminRecoveryCode" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="กรอกรหัสกู้คืน">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">รหัสผ่านใหม่</label>
+                        <input type="password" id="adminNewPwdRecovery" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="รหัสผ่านใหม่อย่างน้อย 6 ตัว">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">ยืนยันรหัสผ่านใหม่</label>
+                        <input type="password" id="adminConfirmPwdRecovery" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="ยืนยันรหัสผ่านใหม่">
+                    </div>
+                    <button onclick="resetAdminPassword()" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-2 rounded-lg font-semibold transition">🔄 รีเซ็ตรหัสผ่าน Admin</button>
+                </div>
+                <div id="adminRecoveryResult" class="mt-4 hidden"></div>
             </div>
         </div>
     </div>
 
     <!-- ============================================================ -->
-    <!-- Dashboard สมาชิก (Member) -->
+    <!-- Dashboard สมาชิก (Member) – ไม่เปลี่ยนแปลง -->
     <!-- ============================================================ -->
     <div id="memberDashboard" class="min-h-screen bg-gray-50 dark:bg-gray-900 hidden">
         <nav class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-40">
@@ -132,7 +162,7 @@
             </div>
         </nav>
         <div class="max-w-7xl mx-auto px-4 py-8">
-            <!-- แถวที่ 1: สถิติรวม 4 การ์ด -->
+            <!-- สถิติ 4 ตัว -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <div class="card-gym p-6"><div class="text-sm text-gray-500 dark:text-gray-400">👥 สมาชิกทั้งหมด</div><div id="totalMembers" class="text-3xl font-bold text-gray-800 dark:text-white">0</div></div>
                 <div class="card-gym p-6"><div class="text-sm text-gray-500 dark:text-gray-400">✅ เข้าวันนี้</div><div id="todayAttendance" class="text-3xl font-bold text-green-600 dark:text-green-400">0</div></div>
@@ -177,7 +207,7 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- Admin Dashboard (เพิ่มปุ่มตั้งค่าระบบ) -->
+    <!-- Admin Dashboard – ไม่เปลี่ยนแปลง -->
     <!-- ============================================================ -->
     <div id="adminDashboard" class="min-h-screen bg-gray-50 dark:bg-gray-900 hidden">
         <nav class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-40">
@@ -185,7 +215,6 @@
                 <div class="flex items-center gap-2"><span class="text-2xl">💪</span><span class="font-bold text-xl text-gray-800 dark:text-white">Gym Admin</span></div>
                 <div class="flex items-center gap-4">
                     <button onclick="toggleDarkMode()" class="dark-toggle text-gray-600 dark:text-gray-300"><span id="darkIconAdmin">🌙</span></button>
-                    <!-- ★ ปุ่มตั้งค่าระบบ -->
                     <button onclick="openSettingsModal()" class="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white text-sm font-medium" title="ตั้งค่าระบบ">⚙️ ตั้งค่า</button>
                     <span class="font-semibold text-green-600 dark:text-green-400">👑 Admin</span>
                     <button onclick="logout()" class="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-sm">ออกจากระบบ</button>
@@ -193,7 +222,6 @@
             </div>
         </nav>
         <div class="max-w-7xl mx-auto px-4 py-8">
-            <!-- สถิติ 6 ตัว -->
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
                 <div class="card-gym p-4 text-center"><div class="text-sm text-gray-500 dark:text-gray-400">👥 สมาชิก</div><div id="adminTotalMembers" class="text-2xl font-bold text-gray-800 dark:text-white">0</div></div>
                 <div class="card-gym p-4 text-center"><div class="text-sm text-gray-500 dark:text-gray-400">✅ เข้าวันนี้</div><div id="adminTodayAttendance" class="text-2xl font-bold text-green-600 dark:text-green-400">0</div></div>
@@ -202,14 +230,10 @@
                 <div class="card-gym p-4 text-center"><div class="text-sm text-gray-500 dark:text-gray-400">📈 สมาชิกใหม่เดือนนี้</div><div id="adminNewMembers" class="text-2xl font-bold text-purple-600 dark:text-purple-400">0</div></div>
                 <div class="card-gym p-4 text-center"><div class="text-sm text-gray-500 dark:text-gray-400">🔄 อัตราต่ออายุ</div><div id="adminRenewRate" class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">0%</div></div>
             </div>
-
-            <!-- กราฟ 2 ตัว -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 <div class="card-gym p-6"><h3 class="font-bold text-lg mb-4 text-gray-800 dark:text-white">💰 รายได้รายเดือน</h3><canvas id="adminRevenueChart" height="200"></canvas></div>
                 <div class="card-gym p-6"><h3 class="font-bold text-lg mb-4 text-gray-800 dark:text-white">📊 การเข้าใช้ 7 วันล่าสุด</h3><canvas id="adminAttendanceChart" height="200"></canvas></div>
             </div>
-
-            <!-- ตารางสมาชิก -->
             <div class="card-gym p-6 mb-8">
                 <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
                     <h3 class="font-bold text-lg text-gray-800 dark:text-white">📋 รายชื่อสมาชิกทั้งหมด</h3>
@@ -223,17 +247,13 @@
                     <table class="admin-table"><thead><tr><th>รหัส</th><th>ชื่อ</th><th>เบอร์โทร</th><th>ประเภท</th><th>แต้ม</th><th>ฉายา</th><th>หมดอายุ</th></tr></thead><tbody id="memberTableBody"></tbody></table>
                 </div>
             </div>
-
-            <!-- ตารางเข้าใช้ -->
             <div class="card-gym p-6 mb-8"><h3 class="font-bold text-lg mb-4 text-gray-800 dark:text-white">⏱️ การเข้าใช้ล่าสุด (10 รายการ)</h3><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>รหัสบันทึก</th><th>สมาชิก</th><th>วันที่</th><th>เวลา</th></tr></thead><tbody id="adminAttendanceTableBody"></tbody></table></div></div>
-
-            <!-- ตารางจ่ายเงิน -->
             <div class="card-gym p-6"><h3 class="font-bold text-lg mb-4 text-gray-800 dark:text-white">💳 การจ่ายเงินล่าสุด (10 รายการ)</h3><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>รหัส</th><th>สมาชิก</th><th>วันที่รับ</th><th>จำนวน</th><th>หมดอายุ</th></tr></thead><tbody id="adminPaymentTableBody"></tbody></table></div></div>
         </div>
     </div>
 
     <!-- ============================================================ -->
-    <!-- Modal ตั้งค่าระบบ (Settings) – ใหม่ -->
+    <!-- Modal ตั้งค่าระบบ – ไม่เปลี่ยนแปลง -->
     <!-- ============================================================ -->
     <div id="settingsModal" class="modal-overlay">
         <div class="modal-box max-w-2xl">
@@ -241,35 +261,22 @@
                 <h3 class="font-bold text-lg text-gray-800 dark:text-white">⚙️ ตั้งค่าระบบ</h3>
                 <button onclick="closeSettingsModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl">&times;</button>
             </div>
-
-            <!-- Tabs -->
             <div class="flex border-b border-gray-200 dark:border-gray-700 mb-4 gap-2">
                 <button class="tab-btn active px-4 py-2 text-sm font-medium" data-tab="tab1" onclick="switchSettingsTab('tab1', this)">🔐 เปลี่ยนรหัส Admin</button>
                 <button class="tab-btn px-4 py-2 text-sm font-medium text-gray-500 dark:text-gray-400" data-tab="tab2" onclick="switchSettingsTab('tab2', this)">👤 จัดการรหัสสมาชิก</button>
                 <button class="tab-btn px-4 py-2 text-sm font-medium text-gray-500 dark:text-gray-400" data-tab="tab3" onclick="switchSettingsTab('tab3', this)">🔑 กู้รหัสผ่าน</button>
             </div>
-
-            <!-- Tab 1: เปลี่ยนรหัสผ่าน Admin -->
+            <!-- Tab 1: เปลี่ยนรหัส Admin -->
             <div id="tab1" class="tab-content active">
                 <form id="changeAdminPwdForm" class="space-y-3">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">รหัสผ่านปัจจุบัน</label>
-                        <input type="password" id="adminCurrentPwd" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="admin123">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">รหัสผ่านใหม่</label>
-                        <input type="password" id="adminNewPwd" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="รหัสผ่านใหม่อย่างน้อย 6 ตัว">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">ยืนยันรหัสผ่านใหม่</label>
-                        <input type="password" id="adminConfirmPwd" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="ยืนยันรหัสผ่านใหม่">
-                    </div>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300">รหัสผ่านปัจจุบัน</label><input type="password" id="adminCurrentPwd" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="admin123"></div>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300">รหัสผ่านใหม่</label><input type="password" id="adminNewPwd" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="รหัสผ่านใหม่อย่างน้อย 6 ตัว"></div>
+                    <div><label class="block text-sm font-medium text-gray-700 dark:text-gray-300">ยืนยันรหัสผ่านใหม่</label><input type="password" id="adminConfirmPwd" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="ยืนยันรหัสผ่านใหม่"></div>
                     <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg font-semibold transition">💾 เปลี่ยนรหัสผ่าน Admin</button>
                 </form>
                 <div id="adminPwdResult" class="mt-3 text-sm hidden"></div>
             </div>
-
-            <!-- Tab 2: จัดการรหัสผ่านสมาชิก -->
+            <!-- Tab 2: จัดการรหัสสมาชิก -->
             <div id="tab2" class="tab-content">
                 <div class="flex gap-2 mb-3">
                     <input type="text" id="memberPwdSearch" placeholder="ค้นหาด้วยรหัสหรือเบอร์โทร..." class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
@@ -279,8 +286,7 @@
                     <p class="text-gray-400 dark:text-gray-500 text-sm">กรุณาค้นหาสมาชิกเพื่อจัดการรหัสผ่าน</p>
                 </div>
             </div>
-
-            <!-- Tab 3: กู้รหัสผ่านด้วยเบอร์โทร -->
+            <!-- Tab 3: กู้รหัสผ่าน (Admin) – ไม่เปลี่ยนแปลง -->
             <div id="tab3" class="tab-content">
                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">กรอกเบอร์โทรศัพท์เพื่อค้นหารหัสผ่านของสมาชิก (Admin เท่านั้น)</p>
                 <div class="flex gap-2">
@@ -293,7 +299,7 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- Modal เพิ่มสมาชิก (เหมือนเดิม) -->
+    <!-- Modal เพิ่มสมาชิก – ไม่เปลี่ยนแปลง -->
     <!-- ============================================================ -->
     <div id="addMemberModal" class="modal-overlay">
         <div class="modal-box">
@@ -313,7 +319,7 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- Modal แสดงสมาชิกใกล้หมดอายุ (เหมือนเดิม) -->
+    <!-- Modal แสดงสมาชิกใกล้หมดอายุ – ไม่เปลี่ยนแปลง -->
     <!-- ============================================================ -->
     <div id="expiryModal" class="modal-overlay">
         <div class="modal-box">
@@ -328,7 +334,7 @@
     <div id="alertContainer" class="fixed top-4 right-4 z-50 space-y-2 max-w-sm w-full"></div>
 
     <!-- ============================================================ -->
-    <!-- JavaScript (เพิ่มฟังก์ชันจัดการรหัสผ่าน) -->
+    <!-- JavaScript (เพิ่มฟังก์ชันกู้รหัส Admin) -->
     <!-- ============================================================ -->
     <script>
         // ================================================================
@@ -549,10 +555,8 @@
         }
 
         // ================================================================
-        // ★★ ระบบจัดการรหัสผ่าน (ใหม่) ★★
+        // ★★ ระบบจัดการรหัสผ่าน Admin (เดิม) ★★
         // ================================================================
-
-        // เก็บรหัสผ่าน Admin ใน localStorage
         function getAdminPassword() {
             return localStorage.getItem('admin_password') || 'admin123';
         }
@@ -560,7 +564,7 @@
             localStorage.setItem('admin_password', newPwd);
         }
 
-        // เปลี่ยนรหัสผ่าน Admin
+        // เปลี่ยนรหัสผ่าน Admin (จาก settings)
         document.getElementById('changeAdminPwdForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const current = document.getElementById('adminCurrentPwd').value.trim();
@@ -597,176 +601,49 @@
             showAlert('✅ เปลี่ยนรหัสผ่าน Admin สำเร็จ!', 'success');
         });
 
-        // ค้นหาสมาชิกเพื่อจัดการรหัสผ่าน (Tab 2)
-        async function searchMemberForPwd() {
-            const query = document.getElementById('memberPwdSearch').value.trim();
-            const resultDiv = document.getElementById('memberPwdResult');
-            if (!query) {
-                resultDiv.innerHTML = '<p class="text-yellow-500 text-sm">กรุณากรอกรหัสสมาชิกหรือเบอร์โทร</p>';
-                return;
-            }
-
-            const members = await fetchMembers();
-            // ค้นหาด้วยรหัสสมาชิก หรือ เบอร์โทร
-            let found = members.find(m => m['รหัสสมาชิก'] === query);
-            if (!found) {
-                found = members.find(m => m['เบอร์โทรศัพท์'] === query);
-            }
-
-            if (!found) {
-                resultDiv.innerHTML = '<p class="text-red-500 text-sm">❌ ไม่พบสมาชิกที่ตรงกับข้อมูลนี้</p>';
-                return;
-            }
-
-            const currentPwd = found['รหัสผ่าน'] || '1234';
-            const memberId = found['รหัสสมาชิก'];
-            const name = found['ชื่อ นามสกุล'];
-            const phone = found['เบอร์โทรศัพท์'] || '-';
-
-            resultDiv.innerHTML = `
-                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg space-y-3">
-                    <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">รหัสสมาชิก</span><span class="font-medium">${memberId}</span></div>
-                    <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">ชื่อ-นามสกุล</span><span class="font-medium">${name}</span></div>
-                    <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">เบอร์โทร</span><span class="font-medium">${phone}</span></div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-gray-500 dark:text-gray-400">รหัสผ่านปัจจุบัน</span>
-                        <span class="font-medium font-mono" id="pwdDisplay">${'•'.repeat(currentPwd.length)}</span>
-                        <button onclick="togglePwdVisibility('pwdDisplay', '${currentPwd}')" class="text-blue-500 hover:text-blue-700 text-sm">👁️ แสดง</button>
-                    </div>
-                    <div class="flex gap-2 mt-2">
-                        <input type="text" id="newMemberPwdInput" placeholder="รหัสผ่านใหม่" class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm">
-                        <button onclick="resetMemberPassword('${memberId}')" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">รีเซ็ต</button>
-                    </div>
-                    <div id="memberPwdActionResult" class="text-sm hidden"></div>
-                </div>
-            `;
-        }
-
-        // แสดง/ซ่อนรหัสผ่าน
-        function togglePwdVisibility(elementId, actualPwd) {
-            const el = document.getElementById(elementId);
-            if (el.textContent === '•'.repeat(actualPwd.length)) {
-                el.textContent = actualPwd;
-            } else {
-                el.textContent = '•'.repeat(actualPwd.length);
-            }
-        }
-
-        // รีเซ็ตรหัสผ่านสมาชิก (ตั้งรหัสใหม่)
-        async function resetMemberPassword(memberId) {
-            const newPwdInput = document.getElementById('newMemberPwdInput');
-            const resultDiv = document.getElementById('memberPwdActionResult');
-            let newPwd = newPwdInput.value.trim();
-
-            if (!newPwd) {
-                // สุ่มรหัสผ่าน 6 หลัก
-                newPwd = Math.random().toString(36).substring(2, 8).toUpperCase();
-                newPwdInput.value = newPwd;
-            }
-            if (newPwd.length < 4) {
-                resultDiv.className = 'text-sm text-red-500';
-                resultDiv.textContent = '❌ รหัสผ่านต้องมีอย่างน้อย 4 ตัวอักษร';
-                resultDiv.classList.remove('hidden');
-                return;
-            }
-
-            // อัปเดตใน Google Sheets
-            const members = await fetchMembers();
-            const rowId = members.findIndex(m => m['รหัสสมาชิก'] === memberId);
-            if (rowId === -1) {
-                resultDiv.className = 'text-sm text-red-500';
-                resultDiv.textContent = '❌ ไม่พบสมาชิกนี้';
-                resultDiv.classList.remove('hidden');
-                return;
-            }
-
-            const result = await updateSheetRow('ข้อมูลสมาชิก', rowId + 2, { 'รหัสผ่าน': newPwd });
-            if (result && !result.error) {
-                resultDiv.className = 'text-sm text-green-500';
-                resultDiv.textContent = `✅ เปลี่ยนรหัสผ่านเป็น ${newPwd} สำเร็จ!`;
-                resultDiv.classList.remove('hidden');
-                showAlert(`✅ เปลี่ยนรหัสผ่านของ ${memberId} เป็น ${newPwd}`, 'success');
-                // อัปเดตการแสดงผล
-                document.getElementById('pwdDisplay').textContent = '•'.repeat(newPwd.length);
-            } else {
-                resultDiv.className = 'text-sm text-red-500';
-                resultDiv.textContent = '❌ ไม่สามารถเปลี่ยนรหัสผ่านได้: ' + (result.error || '');
-                resultDiv.classList.remove('hidden');
-            }
-        }
-
         // ================================================================
-        // Tab Switching
+        // ★★ ฟังก์ชันกู้รหัส Admin (ใหม่) ★★
         // ================================================================
-        function switchSettingsTab(tabId, btn) {
-            // ซ่อนทุก Tab
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            // แสดง Tab ที่เลือก
-            document.getElementById(tabId).classList.add('active');
-            // จัดการปุ่ม
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-        }
+        const RECOVERY_CODE = 'adminreset2024';
 
-        // ================================================================
-        // เปิด/ปิด Modal ตั้งค่าระบบ
-        // ================================================================
-        function openSettingsModal() {
-            document.getElementById('settingsModal').classList.add('active');
-            // รีเซ็ตข้อความ
-            document.getElementById('adminPwdResult').classList.add('hidden');
-            document.getElementById('memberPwdResult').innerHTML = '<p class="text-gray-400 dark:text-gray-500 text-sm">กรุณาค้นหาสมาชิกเพื่อจัดการรหัสผ่าน</p>';
-            document.getElementById('phoneRecoveryResult').classList.add('hidden');
-        }
-        function closeSettingsModal() {
-            document.getElementById('settingsModal').classList.remove('active');
-        }
+        function resetAdminPassword() {
+            const code = document.getElementById('adminRecoveryCode').value.trim();
+            const newPwd = document.getElementById('adminNewPwdRecovery').value.trim();
+            const confirmPwd = document.getElementById('adminConfirmPwdRecovery').value.trim();
+            const resultDiv = document.getElementById('adminRecoveryResult');
 
-        // ================================================================
-        // กู้รหัสผ่านด้วยเบอร์โทร (Admin Tab 3)
-        // ================================================================
-        async function searchPhoneRecovery() {
-            const phone = document.getElementById('phoneRecoveryInput').value.trim();
-            const resultDiv = document.getElementById('phoneRecoveryResult');
-            if (!phone) {
-                resultDiv.className = 'mt-3 text-sm text-yellow-500';
-                resultDiv.textContent = '⚠️ กรุณากรอกเบอร์โทรศัพท์';
-                resultDiv.classList.remove('hidden');
-                return;
-            }
-
-            const members = await fetchMembers();
-            const found = members.find(m => m['เบอร์โทรศัพท์'] === phone);
-            if (!found) {
+            if (code !== RECOVERY_CODE) {
                 resultDiv.className = 'mt-3 text-sm text-red-500';
-                resultDiv.textContent = '❌ ไม่พบสมาชิกที่มีเบอร์โทรนี้';
+                resultDiv.textContent = '❌ รหัสกู้คืนไม่ถูกต้อง';
+                resultDiv.classList.remove('hidden');
+                return;
+            }
+            if (newPwd.length < 6) {
+                resultDiv.className = 'mt-3 text-sm text-red-500';
+                resultDiv.textContent = '❌ รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัวอักษร';
+                resultDiv.classList.remove('hidden');
+                return;
+            }
+            if (newPwd !== confirmPwd) {
+                resultDiv.className = 'mt-3 text-sm text-red-500';
+                resultDiv.textContent = '❌ รหัสผ่านใหม่และการยืนยันไม่ตรงกัน';
                 resultDiv.classList.remove('hidden');
                 return;
             }
 
-            const pwd = found['รหัสผ่าน'] || '1234';
-            resultDiv.className = 'mt-3 text-sm p-3 bg-green-50 dark:bg-green-900/30 rounded-lg border border-green-200 dark:border-green-800';
-            resultDiv.innerHTML = `
-                <div><strong>รหัสสมาชิก:</strong> ${found['รหัสสมาชิก']}</div>
-                <div><strong>ชื่อ:</strong> ${found['ชื่อ นามสกุล']}</div>
-                <div><strong>รหัสผ่าน:</strong> <span class="font-mono font-bold text-green-600 dark:text-green-400">${pwd}</span></div>
-                <div class="text-xs text-gray-500 mt-1">💡 แจ้งรหัสผ่านนี้ให้สมาชิกทราบ</div>
-            `;
+            setAdminPassword(newPwd);
+            resultDiv.className = 'mt-3 text-sm text-green-500';
+            resultDiv.textContent = `✅ รีเซ็ตรหัสผ่าน Admin สำเร็จ! รหัสผ่านใหม่คือ "${newPwd}"`;
             resultDiv.classList.remove('hidden');
+            document.getElementById('adminRecoveryCode').value = '';
+            document.getElementById('adminNewPwdRecovery').value = '';
+            document.getElementById('adminConfirmPwdRecovery').value = '';
+            showAlert(`✅ รีเซ็ตรหัสผ่าน Admin สำเร็จ! รหัสผ่านใหม่: ${newPwd}`, 'success');
         }
 
         // ================================================================
-        // ฟังก์ชันลืมรหัสผ่าน (หน้า Login)
+        // ฟังก์ชันค้นหาสมาชิก (สำหรับลืมรหัสผ่านสมาชิก)
         // ================================================================
-        function showForgotPasswordModal() {
-            document.getElementById('forgotPasswordModal').classList.add('active');
-            document.getElementById('forgotResult').classList.add('hidden');
-            document.getElementById('forgotSearchInput').value = '';
-        }
-        function closeForgotPasswordModal() {
-            document.getElementById('forgotPasswordModal').classList.remove('active');
-        }
-
         async function searchForgotPassword() {
             const query = document.getElementById('forgotSearchInput').value.trim();
             const resultDiv = document.getElementById('forgotResult');
@@ -801,6 +678,187 @@
             resultDiv.classList.remove('hidden');
         }
 
+        // ================================================================
+        // Tab Switching (สำหรับ forgot modal)
+        // ================================================================
+        function switchForgotTab(tabId, btn) {
+            document.querySelectorAll('.forgot-tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.forgot-tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            // ซ่อนผลลัพธ์เก่า
+            document.getElementById('forgotResult').classList.add('hidden');
+            document.getElementById('adminRecoveryResult').classList.add('hidden');
+        }
+
+        // ================================================================
+        // Modal ตั้งค่าระบบ – Tab Switching (เดิม)
+        // ================================================================
+        function switchSettingsTab(tabId, btn) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        // ================================================================
+        // ฟังก์ชันจัดการสมาชิกใน Settings (เดิม)
+        // ================================================================
+        async function searchMemberForPwd() {
+            const query = document.getElementById('memberPwdSearch').value.trim();
+            const resultDiv = document.getElementById('memberPwdResult');
+            if (!query) {
+                resultDiv.innerHTML = '<p class="text-yellow-500 text-sm">กรุณากรอกรหัสสมาชิกหรือเบอร์โทร</p>';
+                return;
+            }
+
+            const members = await fetchMembers();
+            let found = members.find(m => m['รหัสสมาชิก'] === query);
+            if (!found) {
+                found = members.find(m => m['เบอร์โทรศัพท์'] === query);
+            }
+
+            if (!found) {
+                resultDiv.innerHTML = '<p class="text-red-500 text-sm">❌ ไม่พบสมาชิกที่ตรงกับข้อมูลนี้</p>';
+                return;
+            }
+
+            const currentPwd = found['รหัสผ่าน'] || '1234';
+            const memberId = found['รหัสสมาชิก'];
+            const name = found['ชื่อ นามสกุล'];
+            const phone = found['เบอร์โทรศัพท์'] || '-';
+
+            resultDiv.innerHTML = `
+                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg space-y-3">
+                    <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">รหัสสมาชิก</span><span class="font-medium">${memberId}</span></div>
+                    <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">ชื่อ-นามสกุล</span><span class="font-medium">${name}</span></div>
+                    <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">เบอร์โทร</span><span class="font-medium">${phone}</span></div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-500 dark:text-gray-400">รหัสผ่านปัจจุบัน</span>
+                        <span class="font-medium font-mono" id="pwdDisplay">${'•'.repeat(currentPwd.length)}</span>
+                        <button onclick="togglePwdVisibility('pwdDisplay', '${currentPwd}')" class="text-blue-500 hover:text-blue-700 text-sm">👁️ แสดง</button>
+                    </div>
+                    <div class="flex gap-2 mt-2">
+                        <input type="text" id="newMemberPwdInput" placeholder="รหัสผ่านใหม่" class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm">
+                        <button onclick="resetMemberPassword('${memberId}')" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">รีเซ็ต</button>
+                    </div>
+                    <div id="memberPwdActionResult" class="text-sm hidden"></div>
+                </div>
+            `;
+        }
+
+        function togglePwdVisibility(elementId, actualPwd) {
+            const el = document.getElementById(elementId);
+            if (el.textContent === '•'.repeat(actualPwd.length)) {
+                el.textContent = actualPwd;
+            } else {
+                el.textContent = '•'.repeat(actualPwd.length);
+            }
+        }
+
+        async function resetMemberPassword(memberId) {
+            const newPwdInput = document.getElementById('newMemberPwdInput');
+            const resultDiv = document.getElementById('memberPwdActionResult');
+            let newPwd = newPwdInput.value.trim();
+
+            if (!newPwd) {
+                newPwd = Math.random().toString(36).substring(2, 8).toUpperCase();
+                newPwdInput.value = newPwd;
+            }
+            if (newPwd.length < 4) {
+                resultDiv.className = 'text-sm text-red-500';
+                resultDiv.textContent = '❌ รหัสผ่านต้องมีอย่างน้อย 4 ตัวอักษร';
+                resultDiv.classList.remove('hidden');
+                return;
+            }
+
+            const members = await fetchMembers();
+            const rowId = members.findIndex(m => m['รหัสสมาชิก'] === memberId);
+            if (rowId === -1) {
+                resultDiv.className = 'text-sm text-red-500';
+                resultDiv.textContent = '❌ ไม่พบสมาชิกนี้';
+                resultDiv.classList.remove('hidden');
+                return;
+            }
+
+            const result = await updateSheetRow('ข้อมูลสมาชิก', rowId + 2, { 'รหัสผ่าน': newPwd });
+            if (result && !result.error) {
+                resultDiv.className = 'text-sm text-green-500';
+                resultDiv.textContent = `✅ เปลี่ยนรหัสผ่านเป็น ${newPwd} สำเร็จ!`;
+                resultDiv.classList.remove('hidden');
+                showAlert(`✅ เปลี่ยนรหัสผ่านของ ${memberId} เป็น ${newPwd}`, 'success');
+                document.getElementById('pwdDisplay').textContent = '•'.repeat(newPwd.length);
+            } else {
+                resultDiv.className = 'text-sm text-red-500';
+                resultDiv.textContent = '❌ ไม่สามารถเปลี่ยนรหัสผ่านได้: ' + (result.error || '');
+                resultDiv.classList.remove('hidden');
+            }
+        }
+
+        // ================================================================
+        // ฟังก์ชันกู้รหัสผ่านด้วยเบอร์โทร (Admin Settings Tab 3)
+        // ================================================================
+        async function searchPhoneRecovery() {
+            const phone = document.getElementById('phoneRecoveryInput').value.trim();
+            const resultDiv = document.getElementById('phoneRecoveryResult');
+            if (!phone) {
+                resultDiv.className = 'mt-3 text-sm text-yellow-500';
+                resultDiv.textContent = '⚠️ กรุณากรอกเบอร์โทรศัพท์';
+                resultDiv.classList.remove('hidden');
+                return;
+            }
+
+            const members = await fetchMembers();
+            const found = members.find(m => m['เบอร์โทรศัพท์'] === phone);
+            if (!found) {
+                resultDiv.className = 'mt-3 text-sm text-red-500';
+                resultDiv.textContent = '❌ ไม่พบสมาชิกที่มีเบอร์โทรนี้';
+                resultDiv.classList.remove('hidden');
+                return;
+            }
+
+            const pwd = found['รหัสผ่าน'] || '1234';
+            resultDiv.className = 'mt-3 text-sm p-3 bg-green-50 dark:bg-green-900/30 rounded-lg border border-green-200 dark:border-green-800';
+            resultDiv.innerHTML = `
+                <div><strong>รหัสสมาชิก:</strong> ${found['รหัสสมาชิก']}</div>
+                <div><strong>ชื่อ:</strong> ${found['ชื่อ นามสกุล']}</div>
+                <div><strong>รหัสผ่าน:</strong> <span class="font-mono font-bold text-green-600 dark:text-green-400">${pwd}</span></div>
+                <div class="text-xs text-gray-500 mt-1">💡 แจ้งรหัสผ่านนี้ให้สมาชิกทราบ</div>
+            `;
+            resultDiv.classList.remove('hidden');
+        }
+
+        // ================================================================
+        // เปิด/ปิด Modal
+        // ================================================================
+        function showForgotPasswordModal() {
+            document.getElementById('forgotPasswordModal').classList.add('active');
+            document.getElementById('forgotResult').classList.add('hidden');
+            document.getElementById('adminRecoveryResult').classList.add('hidden');
+            document.getElementById('forgotSearchInput').value = '';
+            document.getElementById('adminRecoveryCode').value = '';
+            document.getElementById('adminNewPwdRecovery').value = '';
+            document.getElementById('adminConfirmPwdRecovery').value = '';
+        }
+        function closeForgotPasswordModal() {
+            document.getElementById('forgotPasswordModal').classList.remove('active');
+        }
+
+        function openSettingsModal() {
+            document.getElementById('settingsModal').classList.add('active');
+            document.getElementById('adminPwdResult').classList.add('hidden');
+            document.getElementById('memberPwdResult').innerHTML = '<p class="text-gray-400 dark:text-gray-500 text-sm">กรุณาค้นหาสมาชิกเพื่อจัดการรหัสผ่าน</p>';
+            document.getElementById('phoneRecoveryResult').classList.add('hidden');
+        }
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').classList.remove('active');
+        }
+
+        function showAddMemberModal() { document.getElementById('addMemberModal').classList.add('active'); }
+        function closeAddMemberModal() { document.getElementById('addMemberModal').classList.remove('active'); }
+
+        function closeExpiryModal() { document.getElementById('expiryModal').classList.remove('active'); }
+
         // ปิด Modal ด้วยการคลิกด้านนอก
         document.getElementById('forgotPasswordModal').addEventListener('click', function(e) {
             if (e.target === this) closeForgotPasswordModal();
@@ -808,9 +866,15 @@
         document.getElementById('settingsModal').addEventListener('click', function(e) {
             if (e.target === this) closeSettingsModal();
         });
+        document.getElementById('addMemberModal').addEventListener('click', function(e) {
+            if (e.target === this) closeAddMemberModal();
+        });
+        document.getElementById('expiryModal').addEventListener('click', function(e) {
+            if (e.target === this) closeExpiryModal();
+        });
 
         // ================================================================
-        // Login / Logout (ปรับใช้รหัสผ่าน Admin จาก localStorage)
+        // Login / Logout
         // ================================================================
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
@@ -823,7 +887,6 @@
                 return;
             }
 
-            // ตรวจสอบ Admin (ใช้รหัสผ่านจาก localStorage)
             const adminPwd = getAdminPassword();
             if (username === 'admin' && password === adminPwd) {
                 document.getElementById('loginError').classList.add('hidden');
@@ -833,7 +896,6 @@
                 return;
             }
 
-            // ตรวจสอบสมาชิก
             const members = await fetchMembers();
             const found = members.find(m => m['รหัสสมาชิก'] === username);
             if (found) {
@@ -870,7 +932,7 @@
         }
 
         // ================================================================
-        // Member Dashboard
+        // Member Dashboard (ฟังก์ชันต่างๆ)
         // ================================================================
         let progressChartInstance = null, weightChartInstance = null, peakHoursChartInstance = null;
 
@@ -900,7 +962,7 @@
             checkAlertConditions(members, attendance, payments);
         }
 
-        // ===== ฟังก์ชันต่างๆ (ย่อบางส่วนเพื่อความกระชับ) =====
+        // ===== ฟังก์ชัน display ต่างๆ (เหมือนเดิม – ย่อส่วน) =====
         function displayPersonalInfo(member, points, title) {
             const container = document.getElementById('personalInfo');
             container.innerHTML = `
@@ -1149,7 +1211,7 @@
         }
 
         // ================================================================
-        // Admin Dashboard
+        // Admin Dashboard (ฟังก์ชันเดิม – ไม่เปลี่ยนแปลง)
         // ================================================================
         let adminRevenueChartInstance = null,
             adminAttendanceChartInstance = null;
@@ -1207,7 +1269,7 @@
             const renewRate = adminMembers.length > 0 ? Math.round((renewCount / adminMembers.length) * 100) : 0;
             document.getElementById('adminRenewRate').textContent = renewRate + '%';
 
-            // === กราฟรายได้ ===
+            // กราฟรายได้
             const monthlyRevenue = {};
             adminPayments.forEach(p => {
                 const month = p['เดือนปีที่ชำระ'] || '';
@@ -1227,7 +1289,7 @@
                 options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
             });
 
-            // === กราฟ 7 วันล่าสุด ===
+            // กราฟ 7 วัน
             const last7Days = [];
             for (let i = 6; i >= 0; i--) {
                 const d = new Date();
@@ -1279,7 +1341,7 @@
                 }
             });
 
-            // === ตาราง ===
+            // ตาราง
             renderMemberTable(adminMembers, adminAttendance, adminPayments);
             renderAdminAttendanceTable(adminAttendance, adminMembers);
             renderAdminPaymentTable(adminPayments, adminMembers);
@@ -1294,7 +1356,7 @@
             }
         }
 
-        // ===== ตารางต่างๆ =====
+        // ===== ตารางต่างๆ (เหมือนเดิม) =====
         function renderMemberTable(members, attendance, payments) {
             const tbody = document.getElementById('memberTableBody');
             const searchInput = document.getElementById('memberSearchInput');
@@ -1357,16 +1419,9 @@
             modal.classList.add('active');
         }
 
-        function closeExpiryModal() { document.getElementById('expiryModal').classList.remove('active'); }
-        document.getElementById('expiryModal').addEventListener('click', function(e) { if (e.target === this)
-                closeExpiryModal(); });
-
         // ================================================================
         // เพิ่มสมาชิก
         // ================================================================
-        function showAddMemberModal() { document.getElementById('addMemberModal').classList.add('active'); }
-
-        function closeAddMemberModal() { document.getElementById('addMemberModal').classList.remove('active'); }
         document.getElementById('addMemberForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             const newMember = {
@@ -1465,7 +1520,8 @@
             }
         }, 30000);
 
-        console.log('✅ Gym Analytics Pro (ระบบเปลี่ยนรหัสผ่าน + กู้รหัสผ่าน) โหลดสำเร็จ');
+        console.log('✅ Gym Analytics Pro (เพิ่มระบบกู้รหัส Admin) โหลดสำเร็จ');
+        console.log(`🔑 รหัสกู้คืน Admin: ${RECOVERY_CODE}`);
     </script>
 </body>
 </html>
