@@ -46,12 +46,26 @@
         .expiry-item { padding:12px; border-bottom:1px solid var(--border-color); display:flex; justify-content:space-between; align-items:center; }
         .expiry-item:last-child { border-bottom:none; }
         .expiry-item .badge { background:#E74C3C; color:white; padding:2px 10px; border-radius:20px; font-size:12px; }
+
+        /* Tab Styles */
+        .tab-btn.active { border-bottom: 2px solid #2ECC71; color: #2ECC71; font-weight: 600; }
+        .tab-btn { cursor:pointer; transition: all 0.2s; }
+        .tab-btn:hover { color: #2ECC71; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Password toggle */
+        .pwd-toggle { cursor:pointer; user-select:none; padding:0 8px; }
+
+        /* Forgot password link */
+        .forgot-link { color: #3498DB; cursor:pointer; font-size:0.85rem; }
+        .forgot-link:hover { text-decoration:underline; }
     </style>
 </head>
 <body>
 
     <!-- ============================================================ -->
-    <!-- หน้า Login -->
+    <!-- หน้า Login (เพิ่มปุ่มลืมรหัสผ่าน) -->
     <!-- ============================================================ -->
     <div id="loginPage" class="min-h-screen bg-health-gradient flex items-center justify-center p-4">
         <div class="card-gym max-w-md w-full p-8">
@@ -69,15 +83,42 @@
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">🔒 รหัสผ่าน</label>
                     <input type="password" id="passwordInput" class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="รหัสผ่าน (admin123 / 1234 สำหรับสมาชิก)">
                 </div>
-                <button type="submit" class="w-full bg-gradient-to-r from-green-500 to-blue-500 text-white py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity">เข้าสู่ระบบ 🚀</button>
+                <div class="flex justify-between items-center">
+                    <button type="submit" class="bg-gradient-to-r from-green-500 to-blue-500 text-white py-3 px-6 rounded-xl font-semibold hover:opacity-90 transition-opacity">เข้าสู่ระบบ 🚀</button>
+                    <!-- ★ เพิ่มปุ่มลืมรหัสผ่าน -->
+                    <span class="forgot-link" onclick="showForgotPasswordModal()">🔑 ลืมรหัสผ่าน?</span>
+                </div>
             </form>
             <div id="loginError" class="mt-4 text-red-500 text-sm text-center hidden"></div>
-            <div class="mt-6 text-center text-xs text-gray-400 dark:text-gray-500">💡 Admin: admin / admin123 &nbsp;|&nbsp; สมาชิก: ใช้รหัสสมาชิก / รหัสผ่าน (ถ้าไม่มีให้ใช้ 1234)</div>
+            <div class="mt-6 text-center text-xs text-gray-400 dark:text-gray-500">💡 Admin: admin / admin123 &nbsp;|&nbsp; สมาชิก: ใช้รหัสสมาชิก / รหัสผ่าน</div>
         </div>
     </div>
 
     <!-- ============================================================ -->
-    <!-- Dashboard สมาชิก (Member) – เปลี่ยนการ์ด "ใกล้หมดอายุ" เป็น "คนฉายาเดียวกัน" -->
+    <!-- Modal ลืมรหัสผ่าน (Forgot Password) -->
+    <!-- ============================================================ -->
+    <div id="forgotPasswordModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg text-gray-800 dark:text-white">🔑 กู้รหัสผ่าน</h3>
+                <button onclick="closeForgotPasswordModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl">&times;</button>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">กรอกรหัสสมาชิกหรือเบอร์โทรศัพท์เพื่อดูรหัสผ่าน</p>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">รหัสสมาชิก หรือ เบอร์โทร</label>
+                    <input type="text" id="forgotSearchInput" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="M-0001 หรือ 081-111-1111">
+                </div>
+                <button onclick="searchForgotPassword()" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg font-semibold transition">ค้นหารหัสผ่าน</button>
+            </div>
+            <div id="forgotResult" class="mt-4 hidden">
+                <!-- จะแสดงผลลัพธ์ -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- Dashboard สมาชิก (Member) -->
     <!-- ============================================================ -->
     <div id="memberDashboard" class="min-h-screen bg-gray-50 dark:bg-gray-900 hidden">
         <nav class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-40">
@@ -95,15 +136,9 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <div class="card-gym p-6"><div class="text-sm text-gray-500 dark:text-gray-400">👥 สมาชิกทั้งหมด</div><div id="totalMembers" class="text-3xl font-bold text-gray-800 dark:text-white">0</div></div>
                 <div class="card-gym p-6"><div class="text-sm text-gray-500 dark:text-gray-400">✅ เข้าวันนี้</div><div id="todayAttendance" class="text-3xl font-bold text-green-600 dark:text-green-400">0</div></div>
-                <!-- ★ เปลี่ยนจาก "ใกล้หมดอายุ" เป็น "คนฉายาเดียวกัน" ★ -->
-                <div class="card-gym p-6">
-                    <div class="text-sm text-gray-500 dark:text-gray-400">👥 คนฉายาเดียวกัน</div>
-                    <div id="sameTitleCount" class="text-3xl font-bold text-purple-600 dark:text-purple-400">0</div>
-                </div>
+                <div class="card-gym p-6"><div class="text-sm text-gray-500 dark:text-gray-400">👥 คนฉายาเดียวกัน</div><div id="sameTitleCount" class="text-3xl font-bold text-purple-600 dark:text-purple-400">0</div></div>
                 <div class="card-gym p-6"><div class="text-sm text-gray-500 dark:text-gray-400">🏅 ฉายาสูงสุด</div><div id="topTitle" class="text-xl font-bold text-purple-600 dark:text-purple-400">-</div></div>
             </div>
-
-            <!-- ส่วนที่เหลือของ Member Dashboard (เหมือนเดิม) -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-1">
                     <div class="card-gym p-6"><h3 class="font-bold text-lg mb-4 text-gray-800 dark:text-white">👤 ข้อมูลส่วนตัว</h3><div id="personalInfo" class="space-y-3"></div></div>
@@ -142,7 +177,7 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- Admin Dashboard (ปรับขนาดปุ่ม "โหลดใหม่" ให้เล็กลง) -->
+    <!-- Admin Dashboard (เพิ่มปุ่มตั้งค่าระบบ) -->
     <!-- ============================================================ -->
     <div id="adminDashboard" class="min-h-screen bg-gray-50 dark:bg-gray-900 hidden">
         <nav class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-40">
@@ -150,6 +185,8 @@
                 <div class="flex items-center gap-2"><span class="text-2xl">💪</span><span class="font-bold text-xl text-gray-800 dark:text-white">Gym Admin</span></div>
                 <div class="flex items-center gap-4">
                     <button onclick="toggleDarkMode()" class="dark-toggle text-gray-600 dark:text-gray-300"><span id="darkIconAdmin">🌙</span></button>
+                    <!-- ★ ปุ่มตั้งค่าระบบ -->
+                    <button onclick="openSettingsModal()" class="text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-white text-sm font-medium" title="ตั้งค่าระบบ">⚙️ ตั้งค่า</button>
                     <span class="font-semibold text-green-600 dark:text-green-400">👑 Admin</span>
                     <button onclick="logout()" class="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-sm">ออกจากระบบ</button>
                 </div>
@@ -172,14 +209,13 @@
                 <div class="card-gym p-6"><h3 class="font-bold text-lg mb-4 text-gray-800 dark:text-white">📊 การเข้าใช้ 7 วันล่าสุด</h3><canvas id="adminAttendanceChart" height="200"></canvas></div>
             </div>
 
-            <!-- ตารางสมาชิก (ปรับขนาดปุ่ม "โหลดใหม่" ให้เล็กลง) -->
+            <!-- ตารางสมาชิก -->
             <div class="card-gym p-6 mb-8">
                 <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
                     <h3 class="font-bold text-lg text-gray-800 dark:text-white">📋 รายชื่อสมาชิกทั้งหมด</h3>
                     <div class="flex gap-2">
                         <input type="text" id="memberSearchInput" placeholder="ค้นหาชื่อหรือรหัส..." class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm w-40">
                         <button onclick="showAddMemberModal()" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">+ เพิ่มสมาชิก</button>
-                        <!-- ★ ปรับขนาดปุ่ม "โหลดใหม่" ให้เล็กลง ★ -->
                         <button onclick="refreshAdminData()" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">🔄 โหลดใหม่</button>
                     </div>
                 </div>
@@ -197,7 +233,67 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- Modal เพิ่มสมาชิก -->
+    <!-- Modal ตั้งค่าระบบ (Settings) – ใหม่ -->
+    <!-- ============================================================ -->
+    <div id="settingsModal" class="modal-overlay">
+        <div class="modal-box max-w-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg text-gray-800 dark:text-white">⚙️ ตั้งค่าระบบ</h3>
+                <button onclick="closeSettingsModal()" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl">&times;</button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex border-b border-gray-200 dark:border-gray-700 mb-4 gap-2">
+                <button class="tab-btn active px-4 py-2 text-sm font-medium" data-tab="tab1" onclick="switchSettingsTab('tab1', this)">🔐 เปลี่ยนรหัส Admin</button>
+                <button class="tab-btn px-4 py-2 text-sm font-medium text-gray-500 dark:text-gray-400" data-tab="tab2" onclick="switchSettingsTab('tab2', this)">👤 จัดการรหัสสมาชิก</button>
+                <button class="tab-btn px-4 py-2 text-sm font-medium text-gray-500 dark:text-gray-400" data-tab="tab3" onclick="switchSettingsTab('tab3', this)">🔑 กู้รหัสผ่าน</button>
+            </div>
+
+            <!-- Tab 1: เปลี่ยนรหัสผ่าน Admin -->
+            <div id="tab1" class="tab-content active">
+                <form id="changeAdminPwdForm" class="space-y-3">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">รหัสผ่านปัจจุบัน</label>
+                        <input type="password" id="adminCurrentPwd" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="admin123">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">รหัสผ่านใหม่</label>
+                        <input type="password" id="adminNewPwd" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="รหัสผ่านใหม่อย่างน้อย 6 ตัว">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">ยืนยันรหัสผ่านใหม่</label>
+                        <input type="password" id="adminConfirmPwd" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white" placeholder="ยืนยันรหัสผ่านใหม่">
+                    </div>
+                    <button type="submit" class="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg font-semibold transition">💾 เปลี่ยนรหัสผ่าน Admin</button>
+                </form>
+                <div id="adminPwdResult" class="mt-3 text-sm hidden"></div>
+            </div>
+
+            <!-- Tab 2: จัดการรหัสผ่านสมาชิก -->
+            <div id="tab2" class="tab-content">
+                <div class="flex gap-2 mb-3">
+                    <input type="text" id="memberPwdSearch" placeholder="ค้นหาด้วยรหัสหรือเบอร์โทร..." class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    <button onclick="searchMemberForPwd()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold transition">ค้นหา</button>
+                </div>
+                <div id="memberPwdResult" class="space-y-3">
+                    <p class="text-gray-400 dark:text-gray-500 text-sm">กรุณาค้นหาสมาชิกเพื่อจัดการรหัสผ่าน</p>
+                </div>
+            </div>
+
+            <!-- Tab 3: กู้รหัสผ่านด้วยเบอร์โทร -->
+            <div id="tab3" class="tab-content">
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">กรอกเบอร์โทรศัพท์เพื่อค้นหารหัสผ่านของสมาชิก (Admin เท่านั้น)</p>
+                <div class="flex gap-2">
+                    <input type="text" id="phoneRecoveryInput" placeholder="เบอร์โทรศัพท์ เช่น 081-111-1111" class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                    <button onclick="searchPhoneRecovery()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold transition">ค้นหา</button>
+                </div>
+                <div id="phoneRecoveryResult" class="mt-3 hidden"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- Modal เพิ่มสมาชิก (เหมือนเดิม) -->
     <!-- ============================================================ -->
     <div id="addMemberModal" class="modal-overlay">
         <div class="modal-box">
@@ -217,7 +313,7 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- Modal แสดงสมาชิกใกล้หมดอายุ -->
+    <!-- Modal แสดงสมาชิกใกล้หมดอายุ (เหมือนเดิม) -->
     <!-- ============================================================ -->
     <div id="expiryModal" class="modal-overlay">
         <div class="modal-box">
@@ -232,7 +328,7 @@
     <div id="alertContainer" class="fixed top-4 right-4 z-50 space-y-2 max-w-sm w-full"></div>
 
     <!-- ============================================================ -->
-    <!-- JavaScript (ปรับฟังก์ชัน displayStatistics ให้แสดงจำนวนคนฉายาเดียวกัน) -->
+    <!-- JavaScript (เพิ่มฟังก์ชันจัดการรหัสผ่าน) -->
     <!-- ============================================================ -->
     <script>
         // ================================================================
@@ -261,6 +357,17 @@
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 return await response.json();
             } catch (error) { console.error('Error appending data:', error); return { success:false, error:error.message }; }
+        }
+        async function updateSheetRow(tabName, rowId, updateData) {
+            try {
+                const url = `${SHEETBEST_URL}/tabs/${encodeURIComponent(tabName)}/${rowId}`;
+                const response = await fetch(url, { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify(updateData) });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return await response.json();
+            } catch (error) {
+                console.error('Error updating row:', error);
+                return { success: false, error: error.message };
+            }
         }
 
         // ================================================================
@@ -377,7 +484,9 @@
         }
         function findMemberById(members, memberId) { return members.find(m => m['รหัสสมาชิก'] === memberId); }
 
-        // ===== ระบบบันทึกน้ำหนัก =====
+        // ================================================================
+        // ระบบบันทึกน้ำหนัก
+        // ================================================================
         function getWeightHistory(memberId) { const key=`weight_${memberId}`; const data=localStorage.getItem(key); return data?JSON.parse(data):[]; }
         function saveWeightRecord_local(memberId, weight, height, bmi, status) {
             const key=`weight_${memberId}`; const history=getWeightHistory(memberId);
@@ -395,7 +504,9 @@
             return { startWeight:first.weight, currentWeight:last.weight, weightChange, daysDiff, avgChangePerWeek: daysDiff>0?(weightChange/daysDiff)*7:0 };
         }
 
-        // ===== วิเคราะห์ Peak Hours =====
+        // ================================================================
+        // วิเคราะห์ Peak Hours
+        // ================================================================
         function analyzePeakHours(attendanceLogs) {
             const hourCount={}; for (let i=0;i<24;i++) hourCount[i]=0;
             attendanceLogs.forEach(log => {
@@ -438,42 +549,309 @@
         }
 
         // ================================================================
-        // Login / Logout
+        // ★★ ระบบจัดการรหัสผ่าน (ใหม่) ★★
+        // ================================================================
+
+        // เก็บรหัสผ่าน Admin ใน localStorage
+        function getAdminPassword() {
+            return localStorage.getItem('admin_password') || 'admin123';
+        }
+        function setAdminPassword(newPwd) {
+            localStorage.setItem('admin_password', newPwd);
+        }
+
+        // เปลี่ยนรหัสผ่าน Admin
+        document.getElementById('changeAdminPwdForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const current = document.getElementById('adminCurrentPwd').value.trim();
+            const newPwd = document.getElementById('adminNewPwd').value.trim();
+            const confirmPwd = document.getElementById('adminConfirmPwd').value.trim();
+            const resultDiv = document.getElementById('adminPwdResult');
+
+            if (current !== getAdminPassword()) {
+                resultDiv.className = 'mt-3 text-sm text-red-500';
+                resultDiv.textContent = '❌ รหัสผ่านปัจจุบันไม่ถูกต้อง';
+                resultDiv.classList.remove('hidden');
+                return;
+            }
+            if (newPwd.length < 6) {
+                resultDiv.className = 'mt-3 text-sm text-red-500';
+                resultDiv.textContent = '❌ รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัวอักษร';
+                resultDiv.classList.remove('hidden');
+                return;
+            }
+            if (newPwd !== confirmPwd) {
+                resultDiv.className = 'mt-3 text-sm text-red-500';
+                resultDiv.textContent = '❌ รหัสผ่านใหม่และการยืนยันไม่ตรงกัน';
+                resultDiv.classList.remove('hidden');
+                return;
+            }
+
+            setAdminPassword(newPwd);
+            resultDiv.className = 'mt-3 text-sm text-green-500';
+            resultDiv.textContent = '✅ เปลี่ยนรหัสผ่าน Admin สำเร็จ!';
+            resultDiv.classList.remove('hidden');
+            document.getElementById('adminCurrentPwd').value = '';
+            document.getElementById('adminNewPwd').value = '';
+            document.getElementById('adminConfirmPwd').value = '';
+            showAlert('✅ เปลี่ยนรหัสผ่าน Admin สำเร็จ!', 'success');
+        });
+
+        // ค้นหาสมาชิกเพื่อจัดการรหัสผ่าน (Tab 2)
+        async function searchMemberForPwd() {
+            const query = document.getElementById('memberPwdSearch').value.trim();
+            const resultDiv = document.getElementById('memberPwdResult');
+            if (!query) {
+                resultDiv.innerHTML = '<p class="text-yellow-500 text-sm">กรุณากรอกรหัสสมาชิกหรือเบอร์โทร</p>';
+                return;
+            }
+
+            const members = await fetchMembers();
+            // ค้นหาด้วยรหัสสมาชิก หรือ เบอร์โทร
+            let found = members.find(m => m['รหัสสมาชิก'] === query);
+            if (!found) {
+                found = members.find(m => m['เบอร์โทรศัพท์'] === query);
+            }
+
+            if (!found) {
+                resultDiv.innerHTML = '<p class="text-red-500 text-sm">❌ ไม่พบสมาชิกที่ตรงกับข้อมูลนี้</p>';
+                return;
+            }
+
+            const currentPwd = found['รหัสผ่าน'] || '1234';
+            const memberId = found['รหัสสมาชิก'];
+            const name = found['ชื่อ นามสกุล'];
+            const phone = found['เบอร์โทรศัพท์'] || '-';
+
+            resultDiv.innerHTML = `
+                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg space-y-3">
+                    <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">รหัสสมาชิก</span><span class="font-medium">${memberId}</span></div>
+                    <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">ชื่อ-นามสกุล</span><span class="font-medium">${name}</span></div>
+                    <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">เบอร์โทร</span><span class="font-medium">${phone}</span></div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-500 dark:text-gray-400">รหัสผ่านปัจจุบัน</span>
+                        <span class="font-medium font-mono" id="pwdDisplay">${'•'.repeat(currentPwd.length)}</span>
+                        <button onclick="togglePwdVisibility('pwdDisplay', '${currentPwd}')" class="text-blue-500 hover:text-blue-700 text-sm">👁️ แสดง</button>
+                    </div>
+                    <div class="flex gap-2 mt-2">
+                        <input type="text" id="newMemberPwdInput" placeholder="รหัสผ่านใหม่" class="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm">
+                        <button onclick="resetMemberPassword('${memberId}')" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">รีเซ็ต</button>
+                    </div>
+                    <div id="memberPwdActionResult" class="text-sm hidden"></div>
+                </div>
+            `;
+        }
+
+        // แสดง/ซ่อนรหัสผ่าน
+        function togglePwdVisibility(elementId, actualPwd) {
+            const el = document.getElementById(elementId);
+            if (el.textContent === '•'.repeat(actualPwd.length)) {
+                el.textContent = actualPwd;
+            } else {
+                el.textContent = '•'.repeat(actualPwd.length);
+            }
+        }
+
+        // รีเซ็ตรหัสผ่านสมาชิก (ตั้งรหัสใหม่)
+        async function resetMemberPassword(memberId) {
+            const newPwdInput = document.getElementById('newMemberPwdInput');
+            const resultDiv = document.getElementById('memberPwdActionResult');
+            let newPwd = newPwdInput.value.trim();
+
+            if (!newPwd) {
+                // สุ่มรหัสผ่าน 6 หลัก
+                newPwd = Math.random().toString(36).substring(2, 8).toUpperCase();
+                newPwdInput.value = newPwd;
+            }
+            if (newPwd.length < 4) {
+                resultDiv.className = 'text-sm text-red-500';
+                resultDiv.textContent = '❌ รหัสผ่านต้องมีอย่างน้อย 4 ตัวอักษร';
+                resultDiv.classList.remove('hidden');
+                return;
+            }
+
+            // อัปเดตใน Google Sheets
+            const members = await fetchMembers();
+            const rowId = members.findIndex(m => m['รหัสสมาชิก'] === memberId);
+            if (rowId === -1) {
+                resultDiv.className = 'text-sm text-red-500';
+                resultDiv.textContent = '❌ ไม่พบสมาชิกนี้';
+                resultDiv.classList.remove('hidden');
+                return;
+            }
+
+            const result = await updateSheetRow('ข้อมูลสมาชิก', rowId + 2, { 'รหัสผ่าน': newPwd });
+            if (result && !result.error) {
+                resultDiv.className = 'text-sm text-green-500';
+                resultDiv.textContent = `✅ เปลี่ยนรหัสผ่านเป็น ${newPwd} สำเร็จ!`;
+                resultDiv.classList.remove('hidden');
+                showAlert(`✅ เปลี่ยนรหัสผ่านของ ${memberId} เป็น ${newPwd}`, 'success');
+                // อัปเดตการแสดงผล
+                document.getElementById('pwdDisplay').textContent = '•'.repeat(newPwd.length);
+            } else {
+                resultDiv.className = 'text-sm text-red-500';
+                resultDiv.textContent = '❌ ไม่สามารถเปลี่ยนรหัสผ่านได้: ' + (result.error || '');
+                resultDiv.classList.remove('hidden');
+            }
+        }
+
+        // ================================================================
+        // Tab Switching
+        // ================================================================
+        function switchSettingsTab(tabId, btn) {
+            // ซ่อนทุก Tab
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            // แสดง Tab ที่เลือก
+            document.getElementById(tabId).classList.add('active');
+            // จัดการปุ่ม
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        // ================================================================
+        // เปิด/ปิด Modal ตั้งค่าระบบ
+        // ================================================================
+        function openSettingsModal() {
+            document.getElementById('settingsModal').classList.add('active');
+            // รีเซ็ตข้อความ
+            document.getElementById('adminPwdResult').classList.add('hidden');
+            document.getElementById('memberPwdResult').innerHTML = '<p class="text-gray-400 dark:text-gray-500 text-sm">กรุณาค้นหาสมาชิกเพื่อจัดการรหัสผ่าน</p>';
+            document.getElementById('phoneRecoveryResult').classList.add('hidden');
+        }
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').classList.remove('active');
+        }
+
+        // ================================================================
+        // กู้รหัสผ่านด้วยเบอร์โทร (Admin Tab 3)
+        // ================================================================
+        async function searchPhoneRecovery() {
+            const phone = document.getElementById('phoneRecoveryInput').value.trim();
+            const resultDiv = document.getElementById('phoneRecoveryResult');
+            if (!phone) {
+                resultDiv.className = 'mt-3 text-sm text-yellow-500';
+                resultDiv.textContent = '⚠️ กรุณากรอกเบอร์โทรศัพท์';
+                resultDiv.classList.remove('hidden');
+                return;
+            }
+
+            const members = await fetchMembers();
+            const found = members.find(m => m['เบอร์โทรศัพท์'] === phone);
+            if (!found) {
+                resultDiv.className = 'mt-3 text-sm text-red-500';
+                resultDiv.textContent = '❌ ไม่พบสมาชิกที่มีเบอร์โทรนี้';
+                resultDiv.classList.remove('hidden');
+                return;
+            }
+
+            const pwd = found['รหัสผ่าน'] || '1234';
+            resultDiv.className = 'mt-3 text-sm p-3 bg-green-50 dark:bg-green-900/30 rounded-lg border border-green-200 dark:border-green-800';
+            resultDiv.innerHTML = `
+                <div><strong>รหัสสมาชิก:</strong> ${found['รหัสสมาชิก']}</div>
+                <div><strong>ชื่อ:</strong> ${found['ชื่อ นามสกุล']}</div>
+                <div><strong>รหัสผ่าน:</strong> <span class="font-mono font-bold text-green-600 dark:text-green-400">${pwd}</span></div>
+                <div class="text-xs text-gray-500 mt-1">💡 แจ้งรหัสผ่านนี้ให้สมาชิกทราบ</div>
+            `;
+            resultDiv.classList.remove('hidden');
+        }
+
+        // ================================================================
+        // ฟังก์ชันลืมรหัสผ่าน (หน้า Login)
+        // ================================================================
+        function showForgotPasswordModal() {
+            document.getElementById('forgotPasswordModal').classList.add('active');
+            document.getElementById('forgotResult').classList.add('hidden');
+            document.getElementById('forgotSearchInput').value = '';
+        }
+        function closeForgotPasswordModal() {
+            document.getElementById('forgotPasswordModal').classList.remove('active');
+        }
+
+        async function searchForgotPassword() {
+            const query = document.getElementById('forgotSearchInput').value.trim();
+            const resultDiv = document.getElementById('forgotResult');
+            if (!query) {
+                resultDiv.className = 'mt-3 text-sm text-yellow-500';
+                resultDiv.textContent = '⚠️ กรุณากรอกรหัสสมาชิกหรือเบอร์โทร';
+                resultDiv.classList.remove('hidden');
+                return;
+            }
+
+            const members = await fetchMembers();
+            let found = members.find(m => m['รหัสสมาชิก'] === query);
+            if (!found) {
+                found = members.find(m => m['เบอร์โทรศัพท์'] === query);
+            }
+
+            if (!found) {
+                resultDiv.className = 'mt-3 text-sm text-red-500';
+                resultDiv.textContent = '❌ ไม่พบข้อมูลที่ตรงกัน';
+                resultDiv.classList.remove('hidden');
+                return;
+            }
+
+            const pwd = found['รหัสผ่าน'] || '1234';
+            resultDiv.className = 'mt-3 text-sm p-3 bg-green-50 dark:bg-green-900/30 rounded-lg border border-green-200 dark:border-green-800';
+            resultDiv.innerHTML = `
+                <div><strong>รหัสสมาชิก:</strong> ${found['รหัสสมาชิก']}</div>
+                <div><strong>ชื่อ:</strong> ${found['ชื่อ นามสกุล']}</div>
+                <div><strong>รหัสผ่านของคุณ:</strong> <span class="font-mono font-bold text-green-600 dark:text-green-400">${pwd}</span></div>
+                <div class="text-xs text-gray-500 mt-1">💡 กรุณาจดจำรหัสผ่านนี้ไว้ หรือติดต่อ Admin เพื่อเปลี่ยน</div>
+            `;
+            resultDiv.classList.remove('hidden');
+        }
+
+        // ปิด Modal ด้วยการคลิกด้านนอก
+        document.getElementById('forgotPasswordModal').addEventListener('click', function(e) {
+            if (e.target === this) closeForgotPasswordModal();
+        });
+        document.getElementById('settingsModal').addEventListener('click', function(e) {
+            if (e.target === this) closeSettingsModal();
+        });
+
+        // ================================================================
+        // Login / Logout (ปรับใช้รหัสผ่าน Admin จาก localStorage)
         // ================================================================
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const username=document.getElementById('usernameInput').value.trim();
-            const password=document.getElementById('passwordInput').value.trim();
-            if (!username||!password) {
+            const username = document.getElementById('usernameInput').value.trim();
+            const password = document.getElementById('passwordInput').value.trim();
+
+            if (!username || !password) {
                 document.getElementById('loginError').classList.remove('hidden');
-                document.getElementById('loginError').textContent='❌ กรุณากรอกชื่อผู้ใช้และรหัสผ่าน';
+                document.getElementById('loginError').textContent = '❌ กรุณากรอกชื่อผู้ใช้และรหัสผ่าน';
                 return;
             }
-            if (username==='admin' && password==='admin123') {
+
+            // ตรวจสอบ Admin (ใช้รหัสผ่านจาก localStorage)
+            const adminPwd = getAdminPassword();
+            if (username === 'admin' && password === adminPwd) {
                 document.getElementById('loginError').classList.add('hidden');
-                localStorage.setItem('gym_role','admin');
-                localStorage.setItem('gym_member_id','ADMIN');
+                localStorage.setItem('gym_role', 'admin');
+                localStorage.setItem('gym_member_id', 'ADMIN');
                 await loadAdminDashboard();
                 return;
             }
-            const members=await fetchMembers();
-            const found=members.find(m=>m['รหัสสมาชิก']===username);
+
+            // ตรวจสอบสมาชิก
+            const members = await fetchMembers();
+            const found = members.find(m => m['รหัสสมาชิก'] === username);
             if (found) {
-                const storedPassword=found['รหัสผ่าน']?found['รหัสผ่าน']:'1234';
-                if (password===storedPassword) {
+                const storedPassword = found['รหัสผ่าน'] ? found['รหัสผ่าน'] : '1234';
+                if (password === storedPassword) {
                     document.getElementById('loginError').classList.add('hidden');
-                    localStorage.setItem('gym_role','member');
-                    localStorage.setItem('gym_member_id',username);
+                    localStorage.setItem('gym_role', 'member');
+                    localStorage.setItem('gym_member_id', username);
                     await loadMemberDashboard(username);
                     return;
                 } else {
                     document.getElementById('loginError').classList.remove('hidden');
-                    document.getElementById('loginError').textContent='❌ รหัสผ่านไม่ถูกต้อง (หากยังไม่ตั้งรหัสผ่าน ให้ใช้ 1234)';
+                    document.getElementById('loginError').textContent = '❌ รหัสผ่านไม่ถูกต้อง (หากลืมรหัสผ่าน คลิก "ลืมรหัสผ่าน?")';
                     return;
                 }
             }
             document.getElementById('loginError').classList.remove('hidden');
-            document.getElementById('loginError').textContent='❌ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
+            document.getElementById('loginError').textContent = '❌ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
         });
 
         function logout() {
@@ -482,30 +860,30 @@
             document.getElementById('memberDashboard').classList.add('hidden');
             document.getElementById('adminDashboard').classList.add('hidden');
             document.getElementById('loginPage').classList.remove('hidden');
-            document.getElementById('usernameInput').value='';
-            document.getElementById('passwordInput').value='';
-            if (progressChartInstance) { progressChartInstance.destroy(); progressChartInstance=null; }
-            if (weightChartInstance) { weightChartInstance.destroy(); weightChartInstance=null; }
-            if (peakHoursChartInstance) { peakHoursChartInstance.destroy(); peakHoursChartInstance=null; }
-            if (adminRevenueChartInstance) { adminRevenueChartInstance.destroy(); adminRevenueChartInstance=null; }
-            if (adminAttendanceChartInstance) { adminAttendanceChartInstance.destroy(); adminAttendanceChartInstance=null; }
+            document.getElementById('usernameInput').value = '';
+            document.getElementById('passwordInput').value = '';
+            if (progressChartInstance) { progressChartInstance.destroy(); progressChartInstance = null; }
+            if (weightChartInstance) { weightChartInstance.destroy(); weightChartInstance = null; }
+            if (peakHoursChartInstance) { peakHoursChartInstance.destroy(); peakHoursChartInstance = null; }
+            if (adminRevenueChartInstance) { adminRevenueChartInstance.destroy(); adminRevenueChartInstance = null; }
+            if (adminAttendanceChartInstance) { adminAttendanceChartInstance.destroy(); adminAttendanceChartInstance = null; }
         }
 
         // ================================================================
         // Member Dashboard
         // ================================================================
-        let progressChartInstance=null, weightChartInstance=null, peakHoursChartInstance=null;
+        let progressChartInstance = null, weightChartInstance = null, peakHoursChartInstance = null;
 
         async function loadMemberDashboard(memberId) {
             document.getElementById('loginPage').classList.add('hidden');
             document.getElementById('memberDashboard').classList.remove('hidden');
             document.getElementById('adminDashboard').classList.add('hidden');
 
-            const members=await fetchMembers();
-            const attendance=await fetchAttendance();
-            const payments=await fetchPayments();
-            const currentMember=findMemberById(members, memberId);
-            if (!currentMember) { showAlert('ไม่พบข้อมูลสมาชิก','danger'); logout(); return; }
+            const members = await fetchMembers();
+            const attendance = await fetchAttendance();
+            const payments = await fetchPayments();
+            const currentMember = findMemberById(members, memberId);
+            if (!currentMember) { showAlert('ไม่พบข้อมูลสมาชิก', 'danger'); logout(); return; }
 
             const { points, title } = calculatePointsAndTitle(memberId, attendance);
             document.getElementById('currentMemberName').textContent = currentMember['ชื่อ นามสกุล'] || memberId;
@@ -514,7 +892,6 @@
             displayLeaderboard(members, attendance, memberId);
             displayProgressChart(memberId, attendance);
             displayPeakHoursChart(attendance);
-            // ★ เรียก displayStatistics โดยส่ง memberId และ title ไปด้วย
             displayStatistics(members, attendance, payments, memberId, title);
             displayDisciplineScore(memberId, attendance);
             displayExpiryDate(memberId, payments);
@@ -523,10 +900,10 @@
             checkAlertConditions(members, attendance, payments);
         }
 
-        // ===== displayPersonalInfo =====
+        // ===== ฟังก์ชันต่างๆ (ย่อบางส่วนเพื่อความกระชับ) =====
         function displayPersonalInfo(member, points, title) {
-            const container=document.getElementById('personalInfo');
-            container.innerHTML=`
+            const container = document.getElementById('personalInfo');
+            container.innerHTML = `
                 <div class="flex items-center gap-3">
                     <div class="text-4xl">${title.split(' ')[0]}</div>
                     <div>
@@ -544,72 +921,79 @@
             `;
         }
 
-        // ===== displayLeaderboard =====
         function displayLeaderboard(members, attendance, currentMemberId) {
-            const container=document.getElementById('leaderboard');
-            const active=members.filter(m=>m['ชื่อ นามสกุล'] && m['ชื่อ นามสกุล'].trim()!=='');
-            const data=active.map(m=>{
-                const {points,title}=calculatePointsAndTitle(m['รหัสสมาชิก'], attendance);
-                return { id:m['รหัสสมาชิก'], name:m['ชื่อ นามสกุล'], points, title, isCurrent:m['รหัสสมาชิก']===currentMemberId };
-            }).sort((a,b)=>b.points-a.points).slice(0,10);
-            container.innerHTML=data.length?data.map((item,index)=>`
-                <div class="flex items-center justify-between p-2 rounded-lg ${item.isCurrent?'bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800':'hover:bg-gray-50 dark:hover:bg-gray-700'}">
+            const container = document.getElementById('leaderboard');
+            const active = members.filter(m => m['ชื่อ นามสกุล'] && m['ชื่อ นามสกุล'].trim() !== '');
+            const data = active.map(m => {
+                const { points, title } = calculatePointsAndTitle(m['รหัสสมาชิก'], attendance);
+                return { id: m['รหัสสมาชิก'], name: m['ชื่อ นามสกุล'], points, title, isCurrent: m['รหัสสมาชิก'] === currentMemberId };
+            }).sort((a, b) => b.points - a.points).slice(0, 10);
+            container.innerHTML = data.length ? data.map((item, index) => `
+                <div class="flex items-center justify-between p-2 rounded-lg ${item.isCurrent ? 'bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800' : 'hover:bg-gray-50 dark:hover:bg-gray-700'}">
                     <div class="flex items-center gap-3">
-                        <span class="w-6 text-center font-bold ${index===0?'text-yellow-500':index===1?'text-gray-400':index===2?'text-amber-600':'text-gray-400'}">${index===0?'🥇':index===1?'🥈':index===2?'🥉':`#${index+1}`}</span>
-                        <div><div class="font-medium ${item.isCurrent?'text-green-600 dark:text-green-400':'text-gray-800 dark:text-white'}">${item.name}</div><div class="text-xs text-gray-500 dark:text-gray-400">${item.title}</div></div>
+                        <span class="w-6 text-center font-bold ${index === 0 ? 'text-yellow-500' : index === 1 ? 'text-gray-400' : index === 2 ? 'text-amber-600' : 'text-gray-400'}">${index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `#${index + 1}`}</span>
+                        <div><div class="font-medium ${item.isCurrent ? 'text-green-600 dark:text-green-400' : 'text-gray-800 dark:text-white'}">${item.name}</div><div class="text-xs text-gray-500 dark:text-gray-400">${item.title}</div></div>
                     </div>
                     <div class="font-bold text-green-600 dark:text-green-400">${item.points} pts</div>
                 </div>
-            `).join(''):'<div class="text-center text-gray-400 dark:text-gray-500 py-4">ไม่มีข้อมูลสมาชิก</div>';
+            `).join('') : '<div class="text-center text-gray-400 dark:text-gray-500 py-4">ไม่มีข้อมูลสมาชิก</div>';
         }
 
-        // ===== displayProgressChart =====
         function displayProgressChart(memberId, attendance) {
-            const logs=attendance.filter(log=>log['สมาชิกอ้างอิง']===memberId);
-            const monthly={};
-            logs.forEach(log=>{
-                const d=parseDateFromSheet(log['วันที่เข้าใช้งาน']||log['เวลาที่เข้าใช้งาน']);
-                if(d){ const m=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); monthly[m]=(monthly[m]||0)+1; }
+            const logs = attendance.filter(log => log['สมาชิกอ้างอิง'] === memberId);
+            const monthly = {};
+            logs.forEach(log => {
+                const d = parseDateFromSheet(log['วันที่เข้าใช้งาน'] || log['เวลาที่เข้าใช้งาน']);
+                if (d) { const m = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+                    monthly[m] = (monthly[m] || 0) + 1; }
             });
-            const months=Object.keys(monthly).sort();
-            const counts=months.map(m=>monthly[m]);
-            const ctx=document.getElementById('progressChart').getContext('2d');
-            if(progressChartInstance) progressChartInstance.destroy();
-            if(months.length===0){ ctx.canvas.parentElement.innerHTML='<div class="text-center text-gray-400 dark:text-gray-500 py-4">ยังไม่มีข้อมูลการเข้าใช้งาน</div>'; return; }
-            const mNames=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
-            progressChartInstance=new Chart(ctx, {
-                type:'bar',
-                data:{ labels:months.map(m=>{ const [y,mo]=m.split('-'); return `${mNames[parseInt(mo)-1]} ${y}`; }), datasets:[{ label:'จำนวนครั้งที่เข้าใช้งาน', data:counts, backgroundColor:'rgba(46,204,113,0.7)', borderColor:'#2ECC71', borderWidth:2, borderRadius:8 }] },
-                options:{ responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, ticks:{stepSize:1}}} }
+            const months = Object.keys(monthly).sort();
+            const counts = months.map(m => monthly[m]);
+            const ctx = document.getElementById('progressChart').getContext('2d');
+            if (progressChartInstance) progressChartInstance.destroy();
+            if (months.length === 0) { ctx.canvas.parentElement.innerHTML =
+                    '<div class="text-center text-gray-400 dark:text-gray-500 py-4">ยังไม่มีข้อมูลการเข้าใช้งาน</div>'; return; }
+            const mNames = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+            progressChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: { labels: months.map(m => { const [y, mo] = m.split('-'); return `${mNames[parseInt(mo) - 1]} ${y}`; }),
+                    datasets: [{ label: 'จำนวนครั้งที่เข้าใช้งาน', data: counts, backgroundColor: 'rgba(46,204,113,0.7)',
+                        borderColor: '#2ECC71', borderWidth: 2, borderRadius: 8 }] },
+                options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true,
+                            ticks: { stepSize: 1 } } } }
             });
         }
 
-        // ===== displayPeakHoursChart =====
         function displayPeakHoursChart(attendance) {
             const { hourCount, topHours } = analyzePeakHours(attendance);
-            document.getElementById('peakHourTop').textContent = topHours.length>0&&topHours[0].count>0 ? `${topHours[0].hour}:00 (${topHours[0].count} ครั้ง)` : 'ไม่มีข้อมูล';
-            document.getElementById('peakHourSecond').textContent = topHours.length>1&&topHours[1].count>0 ? `${topHours[1].hour}:00 (${topHours[1].count} ครั้ง)` : '-';
-            document.getElementById('peakHourThird').textContent = topHours.length>2&&topHours[2].count>0 ? `${topHours[2].hour}:00 (${topHours[2].count} ครั้ง)` : '-';
-            const labels=[], data=[], bgColors=[];
-            for(let h=0;h<24;h++){ labels.push(`${h}:00`); data.push(hourCount[h]||0); const isTop=topHours.slice(0,3).some(item=>item.hour===h&&item.count>0); bgColors.push(isTop?'rgba(46,204,113,0.85)':'rgba(52,152,219,0.5)'); }
-            const ctx=document.getElementById('peakHoursChart').getContext('2d');
-            if(peakHoursChartInstance) peakHoursChartInstance.destroy();
-            peakHoursChartInstance=new Chart(ctx, {
-                type:'bar',
-                data:{ labels, datasets:[{ label:'จำนวนครั้งที่เข้าใช้', data, backgroundColor:bgColors, borderColor:'#2ECC71', borderWidth:1, borderRadius:4 }] },
-                options:{ responsive:true, plugins:{legend:{display:false}, tooltip:{callbacks:{label:ctx=>`เข้าใช้ ${ctx.raw} ครั้ง`}}}, scales:{y:{beginAtZero:true, ticks:{stepSize:1}}} }
+            document.getElementById('peakHourTop').textContent = topHours.length > 0 && topHours[0].count > 0 ?
+                `${topHours[0].hour}:00 (${topHours[0].count} ครั้ง)` : 'ไม่มีข้อมูล';
+            document.getElementById('peakHourSecond').textContent = topHours.length > 1 && topHours[1].count > 0 ?
+                `${topHours[1].hour}:00 (${topHours[1].count} ครั้ง)` : '-';
+            document.getElementById('peakHourThird').textContent = topHours.length > 2 && topHours[2].count > 0 ?
+                `${topHours[2].hour}:00 (${topHours[2].count} ครั้ง)` : '-';
+            const labels = [],
+                data = [],
+                bgColors = [];
+            for (let h = 0; h < 24; h++) { labels.push(`${h}:00`);
+                data.push(hourCount[h] || 0); const isTop = topHours.slice(0, 3).some(item => item.hour === h && item
+                    .count > 0);
+                bgColors.push(isTop ? 'rgba(46,204,113,0.85)' : 'rgba(52,152,219,0.5)'); }
+            const ctx = document.getElementById('peakHoursChart').getContext('2d');
+            if (peakHoursChartInstance) peakHoursChartInstance.destroy();
+            peakHoursChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: { labels, datasets: [{ label: 'จำนวนครั้งที่เข้าใช้', data, backgroundColor: bgColors,
+                        borderColor: '#2ECC71', borderWidth: 1, borderRadius: 4 }] },
+                options: { responsive: true, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx =>
+                                `เข้าใช้ ${ctx.raw} ครั้ง` } } }, scales: { y: { beginAtZero: true,
+                            ticks: { stepSize: 1 } } } }
             });
         }
 
-        // ================================================================
-        // ★ displayStatistics (ปรับให้แสดงจำนวนคนฉายาเดียวกัน)
-        // ================================================================
         function displayStatistics(members, attendance, payments, currentMemberId, currentTitle) {
-            // สมาชิกทั้งหมด (เฉพาะที่มีชื่อ)
             const active = members.filter(m => m['ชื่อ นามสกุล'] && m['ชื่อ นามสกุล'].trim() !== '');
             document.getElementById('totalMembers').textContent = active.length;
-
-            // เข้าวันนี้
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             let todayCount = 0;
@@ -619,8 +1003,6 @@
             });
             document.getElementById('todayAttendance').textContent = todayCount;
 
-            // ★ เปลี่ยนจาก "ใกล้หมดอายุ" เป็น "คนฉายาเดียวกัน"
-            // นับจำนวนสมาชิกที่มีฉายาเดียวกันกับสมาชิกที่ล็อกอิน (รวมตัวเองด้วย)
             let sameTitleCount = 0;
             if (currentTitle) {
                 active.forEach(m => {
@@ -630,122 +1012,150 @@
             }
             document.getElementById('sameTitleCount').textContent = sameTitleCount;
 
-            // ฉายาสูงสุด
             const titleCount = {};
             active.forEach(m => {
                 const { title } = calculatePointsAndTitle(m['รหัสสมาชิก'], attendance);
                 titleCount[title] = (titleCount[title] || 0) + 1;
             });
-            let maxTitle = '-', maxCount = 0;
+            let maxTitle = '-',
+                maxCount = 0;
             Object.entries(titleCount).forEach(([t, c]) => {
-                if (c > maxCount) { maxCount = c; maxTitle = t; }
+                if (c > maxCount) { maxCount = c;
+                    maxTitle = t; }
             });
             document.getElementById('topTitle').textContent = maxTitle;
         }
 
-        // ===== displayDisciplineScore =====
         function displayDisciplineScore(memberId, attendance) {
-            const logs=attendance.filter(log=>log['สมาชิกอ้างอิง']===memberId);
-            const dates=logs.map(log=>parseDateFromSheet(log['วันที่เข้าใช้งาน']||log['เวลาที่เข้าใช้งาน'])).filter(d=>d!==null).sort((a,b)=>a-b);
-            if(dates.length===0){ document.getElementById('disciplineScore').textContent='0%'; return; }
-            const first=dates[0], last=dates[dates.length-1];
-            const totalDays=Math.floor((last-first)/(1000*60*60*24))+1;
-            const score=Math.min(100, Math.round((dates.length/totalDays)*100));
-            document.getElementById('disciplineScore').textContent=`${score}%`;
-            const desc=document.querySelector('#disciplineScore + .text-sm');
-            if(score>=80) desc.textContent='🌟 วินัยดีเยี่ยม! รักษามาตรฐานนี้ไว้';
-            else if(score>=60) desc.textContent='💪 วินัยดี เริ่มต้นดีแล้ว';
-            else if(score>=40) desc.textContent='📈 ยังมีพื้นที่ให้พัฒนา';
-            else desc.textContent='🔥 มาเริ่มต้นสร้างวินัยวันนี้เลย!';
+            const logs = attendance.filter(log => log['สมาชิกอ้างอิง'] === memberId);
+            const dates = logs.map(log => parseDateFromSheet(log['วันที่เข้าใช้งาน'] || log['เวลาที่เข้าใช้งาน'])).filter(d =>
+                d !== null).sort((a, b) => a - b);
+            if (dates.length === 0) { document.getElementById('disciplineScore').textContent = '0%'; return; }
+            const first = dates[0],
+                last = dates[dates.length - 1];
+            const totalDays = Math.floor((last - first) / (1000 * 60 * 60 * 24)) + 1;
+            const score = Math.min(100, Math.round((dates.length / totalDays) * 100));
+            document.getElementById('disciplineScore').textContent = `${score}%`;
+            const desc = document.querySelector('#disciplineScore + .text-sm');
+            if (score >= 80) desc.textContent = '🌟 วินัยดีเยี่ยม! รักษามาตรฐานนี้ไว้';
+            else if (score >= 60) desc.textContent = '💪 วินัยดี เริ่มต้นดีแล้ว';
+            else if (score >= 40) desc.textContent = '📈 ยังมีพื้นที่ให้พัฒนา';
+            else desc.textContent = '🔥 มาเริ่มต้นสร้างวินัยวันนี้เลย!';
         }
 
-        // ===== displayExpiryDate =====
         function displayExpiryDate(memberId, payments) {
-            const el=document.getElementById('daysRemaining');
-            const desc=el.parentElement.querySelector('.text-sm');
-            const expiry=getLatestExpiryDate(memberId, payments);
-            if(!expiry){ el.textContent='ไม่ระบุ'; el.className='text-4xl font-bold text-gray-400 dark:text-gray-500'; desc.textContent='ไม่พบข้อมูลการจ่าย'; return; }
-            const today=new Date(); today.setHours(0,0,0,0);
-            expiry.setHours(0,0,0,0);
-            const diff=Math.ceil((expiry-today)/(1000*60*60*24));
-            if(diff<0){ el.textContent='หมดอายุแล้ว'; el.className='text-4xl font-bold text-red-500 dark:text-red-400'; desc.textContent='⚠️ กรุณาต่ออายุทันที'; }
-            else if(diff<=7){ el.textContent=`${diff} วัน`; el.className='text-4xl font-bold text-orange-500 dark:text-orange-400'; desc.textContent='⏰ ใกล้หมดอายุแล้ว!'; }
-            else if(diff<=30){ el.textContent=`${diff} วัน`; el.className='text-4xl font-bold text-yellow-500 dark:text-yellow-400'; desc.textContent='📅 ยังเหลือเวลาอยู่'; }
-            else { el.textContent=`${diff} วัน`; el.className='text-4xl font-bold text-green-500 dark:text-green-400'; desc.textContent='✅ ยังมีเวลาอีกมาก'; }
+            const el = document.getElementById('daysRemaining');
+            const desc = el.parentElement.querySelector('.text-sm');
+            const expiry = getLatestExpiryDate(memberId, payments);
+            if (!expiry) { el.textContent = 'ไม่ระบุ';
+                el.className = 'text-4xl font-bold text-gray-400 dark:text-gray-500';
+                desc.textContent = 'ไม่พบข้อมูลการจ่าย'; return; }
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            expiry.setHours(0, 0, 0, 0);
+            const diff = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24));
+            if (diff < 0) { el.textContent = 'หมดอายุแล้ว';
+                el.className = 'text-4xl font-bold text-red-500 dark:text-red-400';
+                desc.textContent = '⚠️ กรุณาต่ออายุทันที'; } else if (diff <= 7) { el.textContent = `${diff} วัน`;
+                el.className = 'text-4xl font-bold text-orange-500 dark:text-orange-400';
+                desc.textContent = '⏰ ใกล้หมดอายุแล้ว!'; } else if (diff <= 30) { el.textContent = `${diff} วัน`;
+                el.className = 'text-4xl font-bold text-yellow-500 dark:text-yellow-400';
+                desc.textContent = '📅 ยังเหลือเวลาอยู่'; } else { el.textContent = `${diff} วัน`;
+                el.className = 'text-4xl font-bold text-green-500 dark:text-green-400';
+                desc.textContent = '✅ ยังมีเวลาอีกมาก'; }
         }
 
-        // ===== displayHealthStatus =====
         function displayHealthStatus(memberId) {
-            const container=document.getElementById('healthStatusDisplay');
-            const latest=getLatestWeight(memberId);
-            if(!latest){ container.innerHTML='<div class="text-center text-gray-400 dark:text-gray-500 py-4"><div class="text-4xl mb-2">📝</div><p>ยังไม่มีบันทึกน้ำหนัก</p><p class="text-sm">กรุณาบันทึกน้ำหนักครั้งแรก</p></div>'; return; }
-            const bmi=latest.bmi;
-            const health=getHealthStatus(bmi);
-            const progress=getWeightProgress(memberId);
-            container.innerHTML=`
+            const container = document.getElementById('healthStatusDisplay');
+            const latest = getLatestWeight(memberId);
+            if (!latest) { container.innerHTML =
+                    '<div class="text-center text-gray-400 dark:text-gray-500 py-4"><div class="text-4xl mb-2">📝</div><p>ยังไม่มีบันทึกน้ำหนัก</p><p class="text-sm">กรุณาบันทึกน้ำหนักครั้งแรก</p></div>'; return; }
+            const bmi = latest.bmi;
+            const health = getHealthStatus(bmi);
+            const progress = getWeightProgress(memberId);
+            container.innerHTML = `
                 <div class="grid grid-cols-3 gap-3 text-center">
                     <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg"><div class="text-xs text-gray-500 dark:text-gray-400">น้ำหนัก</div><div class="text-xl font-bold text-blue-600 dark:text-blue-400">${latest.weight} กก.</div></div>
                     <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg"><div class="text-xs text-gray-500 dark:text-gray-400">ส่วนสูง</div><div class="text-xl font-bold text-blue-600 dark:text-blue-400">${latest.height} ซม.</div></div>
-                    <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg"><div class="text-xs text-gray-500 dark:text-gray-400">BMI</div><div class="text-xl font-bold ${health.color==='green'?'text-green-600 dark:text-green-400':health.color==='red'?'text-red-600 dark:text-red-400':'text-orange-500 dark:text-orange-400'}">${bmi}</div></div>
+                    <div class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg"><div class="text-xs text-gray-500 dark:text-gray-400">BMI</div><div class="text-xl font-bold ${health.color === 'green' ? 'text-green-600 dark:text-green-400' : health.color === 'red' ? 'text-red-600 dark:text-red-400' : 'text-orange-500 dark:text-orange-400'}">${bmi}</div></div>
                 </div>
-                <div class="flex items-center justify-between p-3 rounded-lg status-${health.color==='green'?'normal':health.color==='blue'?'underweight':health.color==='yellow'?'overweight':'obese'} dark:bg-gray-700 dark:border-gray-600">
+                <div class="flex items-center justify-between p-3 rounded-lg status-${health.color === 'green' ? 'normal' : health.color === 'blue' ? 'underweight' : health.color === 'yellow' ? 'overweight' : 'obese'} dark:bg-gray-700 dark:border-gray-600">
                     <div class="flex items-center gap-2"><span class="text-2xl">${health.emoji}</span><div><div class="font-bold">${health.status}</div><div class="text-sm">${health.advice}</div></div></div>
                 </div>
-                ${progress?`
+                ${progress ? `
                     <div class="mt-2 text-sm text-gray-600 dark:text-gray-300">
-                        <div class="flex justify-between"><span>เปลี่ยนแปลงทั้งหมด:</span><span class="font-bold ${progress.weightChange<0?'text-green-600 dark:text-green-400':'text-red-500 dark:text-red-400'}">${progress.weightChange>0?'+':''}${progress.weightChange.toFixed(1)} กก.</span></div>
+                        <div class="flex justify-between"><span>เปลี่ยนแปลงทั้งหมด:</span><span class="font-bold ${progress.weightChange < 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500 dark:text-red-400'}">${progress.weightChange > 0 ? '+' : ''}${progress.weightChange.toFixed(1)} กก.</span></div>
                         <div class="flex justify-between"><span>ระยะเวลา:</span><span>${progress.daysDiff} วัน</span></div>
                     </div>
-                `:''}
+                ` : ''}
             `;
         }
 
-        // ===== displayWeightChart =====
         function displayWeightChart(memberId) {
-            const history=getWeightHistory(memberId);
-            const ctx=document.getElementById('weightChart');
-            if(history.length<2){ ctx.parentElement.innerHTML='<div class="text-center text-gray-400 dark:text-gray-500 py-4"><div class="text-3xl mb-2">📈</div><p class="text-sm">บันทึกน้ำหนักอย่างน้อย 2 ครั้งเพื่อดูกราฟ</p></div>'; return; }
-            const dates=history.map(h=>h.date), weights=history.map(h=>h.weight);
-            if(weightChartInstance) weightChartInstance.destroy();
-            weightChartInstance=new Chart(ctx.getContext('2d'), {
-                type:'line',
-                data:{ labels:dates, datasets:[{ label:'น้ำหนัก (กก.)', data:weights, borderColor:'#2ECC71', backgroundColor:'rgba(46,204,113,0.1)', borderWidth:3, fill:true, tension:0.3, pointBackgroundColor:'#2ECC71', pointBorderColor:'#fff', pointBorderWidth:2, pointRadius:5 }] },
-                options:{ responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:false}} }
+            const history = getWeightHistory(memberId);
+            const ctx = document.getElementById('weightChart');
+            if (history.length < 2) { ctx.parentElement.innerHTML =
+                    '<div class="text-center text-gray-400 dark:text-gray-500 py-4"><div class="text-3xl mb-2">📈</div><p class="text-sm">บันทึกน้ำหนักอย่างน้อย 2 ครั้งเพื่อดูกราฟ</p></div>'; return; }
+            const dates = history.map(h => h.date),
+                weights = history.map(h => h.weight);
+            if (weightChartInstance) weightChartInstance.destroy();
+            weightChartInstance = new Chart(ctx.getContext('2d'), {
+                type: 'line',
+                data: { labels: dates, datasets: [{ label: 'น้ำหนัก (กก.)', data: weights, borderColor: '#2ECC71',
+                        backgroundColor: 'rgba(46,204,113,0.1)', borderWidth: 3, fill: true, tension: 0.3,
+                        pointBackgroundColor: '#2ECC71', pointBorderColor: '#fff', pointBorderWidth: 2,
+                        pointRadius: 5 }] },
+                options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: false } } }
             });
         }
 
-        // ===== checkAlertConditions =====
         function checkAlertConditions(members, attendance, payments) {
-            const today=new Date(); today.setHours(0,0,0,0);
-            const savedId=localStorage.getItem('gym_member_id');
-            if(savedId){
-                const expiry=getLatestExpiryDate(savedId, payments);
-                if(expiry){ expiry.setHours(0,0,0,0); const diff=Math.ceil((expiry-today)/(1000*60*60*24)); if(diff===3) showAlert('📢 บัตรของคุณจะหมดอายุใน 3 วัน!','warning',8000); else if(diff===1) showAlert('🚨 บัตรของคุณจะหมดอายุพรุ่งนี้!','danger',10000); else if(diff===0) showAlert('❌ บัตรของคุณหมดอายุวันนี้!','danger',10000); }
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const savedId = localStorage.getItem('gym_member_id');
+            if (savedId) {
+                const expiry = getLatestExpiryDate(savedId, payments);
+                if (expiry) { expiry.setHours(0, 0, 0, 0);
+                    const diff = Math.ceil((expiry - today) / (1000 * 60 * 60 * 24)); if (diff === 3) showAlert(
+                        '📢 บัตรของคุณจะหมดอายุใน 3 วัน!', 'warning', 8000); else if (diff === 1) showAlert(
+                        '🚨 บัตรของคุณจะหมดอายุพรุ่งนี้!', 'danger', 10000); else if (diff === 0) showAlert(
+                        '❌ บัตรของคุณหมดอายุวันนี้!', 'danger', 10000); }
             }
-            const todayLogs=attendance.filter(log=>{ const d=parseDateFromSheet(log['วันที่เข้าใช้งาน']||log['เวลาที่เข้าใช้งาน']); return d && isSameDate(d,today); });
-            const hour=new Date().getHours();
-            if(hour>=10 && todayLogs.length===0) showAlert('😴 ยังไม่มีสมาชิกเข้าใช้ยิมวันนี้!','info',10000);
-            if(savedId){
-                const logs=attendance.filter(l=>l['สมาชิกอ้างอิง']===savedId).map(l=>parseDateFromSheet(l['วันที่เข้าใช้งาน']||l['เวลาที่เข้าใช้งาน'])).filter(d=>d!==null).sort((a,b)=>a-b);
-                if(logs.length>=7){ let consecutive=1; for(let i=1;i<logs.length;i++){ const diff=Math.floor((logs[i]-logs[i-1])/(1000*60*60*24)); if(diff===1){ consecutive++; if(consecutive>=7){ showAlert('🎉 คุณเข้าใช้ยิมครบ 7 วันติดต่อกัน! สุดยอด!','success',8000); consecutive=0; } } else if(diff>1) consecutive=1; } }
+            const todayLogs = attendance.filter(log => { const d = parseDateFromSheet(log['วันที่เข้าใช้งาน'] || log[
+                    'เวลาที่เข้าใช้งาน']); return d && isSameDate(d, today); });
+            const hour = new Date().getHours();
+            if (hour >= 10 && todayLogs.length === 0) showAlert('😴 ยังไม่มีสมาชิกเข้าใช้ยิมวันนี้!', 'info', 10000);
+            if (savedId) {
+                const logs = attendance.filter(l => l['สมาชิกอ้างอิง'] === savedId).map(l => parseDateFromSheet(l[
+                    'วันที่เข้าใช้งาน'] || l['เวลาที่เข้าใช้งาน'])).filter(d => d !== null).sort((a, b) => a - b);
+                if (logs.length >= 7) { let consecutive = 1; for (let i = 1; i < logs.length; i++) { const diff = Math
+                            .floor((logs[i] - logs[i - 1]) / (1000 * 60 * 60 * 24)); if (diff === 1) { consecutive++; if (
+                                consecutive >= 7) { showAlert(
+                                '🎉 คุณเข้าใช้ยิมครบ 7 วันติดต่อกัน! สุดยอด!', 'success', 8000);
+                                consecutive = 0; } } else if (diff > 1) consecutive = 1; } }
             }
-            if(savedId){
-                const thisMonth=new Date().toISOString().split('T')[0].substring(0,7);
-                const history=getWeightHistory(savedId);
-                if(!history.some(h=>h.date.startsWith(thisMonth))) showAlert('📝 ยังไม่ได้บันทึกน้ำหนักในเดือนนี้ ลองบันทึกดูนะ!','info',6000);
+            if (savedId) {
+                const thisMonth = new Date().toISOString().split('T')[0].substring(0, 7);
+                const history = getWeightHistory(savedId);
+                if (!history.some(h => h.date.startsWith(thisMonth))) showAlert(
+                    '📝 ยังไม่ได้บันทึกน้ำหนักในเดือนนี้ ลองบันทึกดูนะ!', 'info', 6000);
             }
-            if(savedId){
-                const currentHour=new Date().getHours();
-                const { topHours }=analyzePeakHours(attendance);
-                if(topHours.slice(0,3).some(item=>item.hour===currentHour && item.count>0) && todayLogs.length===0) showAlert(`🔥 ตอนนี้เป็นชั่วโมงเร่งด่วน (${currentHour}:00) รีบเตรียมพร้อม!`,'warning',8000);
+            if (savedId) {
+                const currentHour = new Date().getHours();
+                const { topHours } = analyzePeakHours(attendance);
+                if (topHours.slice(0, 3).some(item => item.hour === currentHour && item.count > 0) && todayLogs.length ===
+                    0) showAlert(`🔥 ตอนนี้เป็นชั่วโมงเร่งด่วน (${currentHour}:00) รีบเตรียมพร้อม!`, 'warning', 8000);
             }
         }
 
         // ================================================================
         // Admin Dashboard
         // ================================================================
-        let adminRevenueChartInstance=null, adminAttendanceChartInstance=null;
-        let adminMembers=[], adminAttendance=[], adminPayments=[];
+        let adminRevenueChartInstance = null,
+            adminAttendanceChartInstance = null;
+        let adminMembers = [],
+            adminAttendance = [],
+            adminPayments = [];
 
         async function loadAdminDashboard() {
             document.getElementById('loginPage').classList.add('hidden');
@@ -811,22 +1221,10 @@
             if (adminRevenueChartInstance) adminRevenueChartInstance.destroy();
             adminRevenueChartInstance = new Chart(revCtx, {
                 type: 'bar',
-                data: {
-                    labels: revMonths,
-                    datasets: [{
-                        label: 'รายได้ (บาท)',
-                        data: revData,
-                        backgroundColor: 'rgba(52, 152, 219, 0.7)',
-                        borderColor: '#3498DB',
-                        borderWidth: 2,
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true } }
-                }
+                data: { labels: revMonths, datasets: [{ label: 'รายได้ (บาท)', data: revData,
+                        backgroundColor: 'rgba(52,152,219,0.7)', borderColor: '#3498DB', borderWidth: 2,
+                        borderRadius: 6 }] },
+                options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
             });
 
             // === กราฟ 7 วันล่าสุด ===
@@ -857,15 +1255,12 @@
             adminAttendanceChartInstance = new Chart(attCtx, {
                 type: 'line',
                 data: {
-                    labels: last7Days.map(d => {
-                        const parts = d.split('-');
-                        return `${parts[2]}/${parts[1]}`;
-                    }),
+                    labels: last7Days.map(d => { const parts = d.split('-'); return `${parts[2]}/${parts[1]}`; }),
                     datasets: [{
                         label: 'จำนวนเข้าใช้',
                         data: dayCounts,
                         borderColor: '#2ECC71',
-                        backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                        backgroundColor: 'rgba(46,204,113,0.2)',
                         fill: true,
                         tension: 0.3,
                         pointBackgroundColor: '#2ECC71',
@@ -878,20 +1273,9 @@
                     responsive: true,
                     plugins: {
                         legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return `เข้าใช้ ${context.raw} ครั้ง`;
-                                }
-                            }
-                        }
+                        tooltip: { callbacks: { label: function(context) { return `เข้าใช้ ${context.raw} ครั้ง`; } } }
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: { stepSize: 1 }
-                        }
-                    }
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
                 }
             });
 
@@ -901,49 +1285,56 @@
             renderAdminPaymentTable(adminPayments, adminMembers);
 
             if (expiringCount > 0) {
-                showAlert(`⚠️ มีสมาชิก ${expiringCount} คนใกล้หมดอายุภายใน 7 วัน (คลิกที่การ์ดเพื่อดูรายละเอียด)`, 'warning', 6000);
+                showAlert(
+                    `⚠️ มีสมาชิก ${expiringCount} คนใกล้หมดอายุภายใน 7 วัน (คลิกที่การ์ดเพื่อดูรายละเอียด)`, 'warning',
+                    6000);
             }
             if (newMembers > 0) {
                 showAlert(`🎉 มีสมาชิกใหม่ ${newMembers} คนในเดือนนี้`, 'success', 5000);
             }
         }
 
-        // ===== ตารางสมาชิก =====
+        // ===== ตารางต่างๆ =====
         function renderMemberTable(members, attendance, payments) {
-            const tbody=document.getElementById('memberTableBody');
-            const searchInput=document.getElementById('memberSearchInput');
-            function filterMembers(){ const q=searchInput.value.toLowerCase(); return members.filter(m=>(m['ชื่อ นามสกุล']||'').toLowerCase().includes(q) || (m['รหัสสมาชิก']||'').toLowerCase().includes(q)); }
-            function render(){
-                const filtered=filterMembers();
-                tbody.innerHTML=filtered.map(m=>{
-                    const {points,title}=calculatePointsAndTitle(m['รหัสสมาชิก'], attendance);
-                    const expiry=getLatestExpiryDate(m['รหัสสมาชิก'], payments||[]);
-                    const expiryStr=expiry?expiry.toISOString().split('T')[0]:'-';
+            const tbody = document.getElementById('memberTableBody');
+            const searchInput = document.getElementById('memberSearchInput');
+
+            function filterMembers() { const q = searchInput.value.toLowerCase(); return members.filter(m => (m[
+                        'ชื่อ นามสกุล'] || '').toLowerCase().includes(q) || (m['รหัสสมาชิก'] || '').toLowerCase()
+                    .includes(q)); }
+
+            function render() {
+                const filtered = filterMembers();
+                tbody.innerHTML = filtered.map(m => {
+                    const { points, title } = calculatePointsAndTitle(m['รหัสสมาชิก'], attendance);
+                    const expiry = getLatestExpiryDate(m['รหัสสมาชิก'], payments || []);
+                    const expiryStr = expiry ? expiry.toISOString().split('T')[0] : '-';
                     return `<tr><td class="font-medium">${m['รหัสสมาชิก']||'-'}</td><td>${m['ชื่อ นามสกุล']||'-'}</td><td>${m['เบอร์โทรศัพท์']||'-'}</td><td>${m['ประเภทสมาชิก']||'ธรรมดา'}</td><td>${points}</td><td>${title}</td><td>${expiryStr}</td></tr>`;
                 }).join('');
             }
-            searchInput.addEventListener('input', render); render();
+            searchInput.addEventListener('input', render);
+            render();
         }
 
-        // ===== ตารางเข้าใช้ =====
         function renderAdminAttendanceTable(attendance, members) {
-            const tbody=document.getElementById('adminAttendanceTableBody');
-            const sorted=attendance.slice().sort((a,b)=>(b['เวลาที่เข้าใช้งาน']||'').localeCompare(a['เวลาที่เข้าใช้งาน']||'')).slice(0,10);
-            tbody.innerHTML=sorted.map(log=>{
-                const member=members.find(m=>m['รหัสสมาชิก']===log['สมาชิกอ้างอิง']);
-                const name=member?member['ชื่อ นามสกุล']:log['สมาชิกอ้างอิง'];
+            const tbody = document.getElementById('adminAttendanceTableBody');
+            const sorted = attendance.slice().sort((a, b) => (b['เวลาที่เข้าใช้งาน'] || '').localeCompare(a[
+                'เวลาที่เข้าใช้งาน'] || '')).slice(0, 10);
+            tbody.innerHTML = sorted.map(log => {
+                const member = members.find(m => m['รหัสสมาชิก'] === log['สมาชิกอ้างอิง']);
+                const name = member ? member['ชื่อ นามสกุล'] : log['สมาชิกอ้างอิง'];
                 return `<tr><td>${log['รหัสบันทึก']||'-'}</td><td>${name}</td><td>${log['วันที่เข้าใช้งาน']||'-'}</td><td>${log['เวลาที่เข้าใช้งาน']||'-'}</td></tr>`;
             }).join('');
         }
 
-        // ===== ตารางจ่ายเงิน =====
         function renderAdminPaymentTable(payments, members) {
-            const tbody=document.getElementById('adminPaymentTableBody');
-            const sorted=payments.slice().sort((a,b)=>(b['วันที่รับชำระ']||'').localeCompare(a['วันที่รับชำระ']||'')).slice(0,10);
-            tbody.innerHTML=sorted.map(p=>{
-                const member=members.find(m=>m['รหัสสมาชิก']===p['สมาชิกอ้างอิง']);
-                const name=member?member['ชื่อ นามสกุล']:p['สมาชิกอ้างอิง'];
-                const amt=parseFloat(p['จำนวนเงินที่รับ'])||0;
+            const tbody = document.getElementById('adminPaymentTableBody');
+            const sorted = payments.slice().sort((a, b) => (b['วันที่รับชำระ'] || '').localeCompare(a[
+                'วันที่รับชำระ'] || '')).slice(0, 10);
+            tbody.innerHTML = sorted.map(p => {
+                const member = members.find(m => m['รหัสสมาชิก'] === p['สมาชิกอ้างอิง']);
+                const name = member ? member['ชื่อ นามสกุล'] : p['สมาชิกอ้างอิง'];
+                const amt = parseFloat(p['จำนวนเงินที่รับ']) || 0;
                 return `<tr><td>${p['รหัสการจ่ายเงิน']||'-'}</td><td>${name}</td><td>${p['วันที่รับชำระ']||'-'}</td><td>${amt.toLocaleString()} ฿</td><td>${p['วันที่หมดอายุ']||'-'}</td></tr>`;
             }).join('');
         }
@@ -951,62 +1342,73 @@
         // ================================================================
         // Modal ใกล้หมดอายุ
         // ================================================================
-        function showExpiringMembersModal(){
-            const modal=document.getElementById('expiryModal');
-            const body=document.getElementById('expiryModalBody');
-            const list=getExpiringMembers(adminPayments, adminMembers);
-            if(list.length===0){ body.innerHTML='<p class="text-gray-500 dark:text-gray-400 text-center py-4">🎉 ไม่มีสมาชิกที่ใกล้หมดอายุ</p>'; }
-            else {
-                body.innerHTML=list.map(item=>{
-                    const days=item.daysLeft; const color=days===0?'bg-red-500':(days<=3?'bg-orange-500':'bg-yellow-500');
+        function showExpiringMembersModal() {
+            const modal = document.getElementById('expiryModal');
+            const body = document.getElementById('expiryModalBody');
+            const list = getExpiringMembers(adminPayments, adminMembers);
+            if (list.length === 0) { body.innerHTML =
+                    '<p class="text-gray-500 dark:text-gray-400 text-center py-4">🎉 ไม่มีสมาชิกที่ใกล้หมดอายุ</p>'; } else {
+                body.innerHTML = list.map(item => {
+                    const days = item.daysLeft;
+                    const color = days === 0 ? 'bg-red-500' : (days <= 3 ? 'bg-orange-500' : 'bg-yellow-500');
                     return `<div class="expiry-item"><div><div class="font-bold text-gray-800 dark:text-white">${item.member['ชื่อ นามสกุล']}</div><div class="text-sm text-gray-500 dark:text-gray-400">รหัส: ${item.member['รหัสสมาชิก']} | เบอร์: ${item.member['เบอร์โทรศัพท์']||'-'}</div></div><div class="text-right"><span class="badge ${color}">${days===0?'หมดอายุวันนี้':`${days} วัน`}</span><div class="text-xs text-gray-400 mt-1">หมดอายุ: ${item.expiryDate.toISOString().split('T')[0]}</div></div></div>`;
                 }).join('');
             }
             modal.classList.add('active');
         }
-        function closeExpiryModal(){ document.getElementById('expiryModal').classList.remove('active'); }
-        document.getElementById('expiryModal').addEventListener('click', function(e){ if(e.target===this) closeExpiryModal(); });
+
+        function closeExpiryModal() { document.getElementById('expiryModal').classList.remove('active'); }
+        document.getElementById('expiryModal').addEventListener('click', function(e) { if (e.target === this)
+                closeExpiryModal(); });
 
         // ================================================================
         // เพิ่มสมาชิก
         // ================================================================
-        function showAddMemberModal(){ document.getElementById('addMemberModal').classList.add('active'); }
-        function closeAddMemberModal(){ document.getElementById('addMemberModal').classList.remove('active'); }
-        document.getElementById('addMemberForm').addEventListener('submit', async function(e){
+        function showAddMemberModal() { document.getElementById('addMemberModal').classList.add('active'); }
+
+        function closeAddMemberModal() { document.getElementById('addMemberModal').classList.remove('active'); }
+        document.getElementById('addMemberForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const newMember={
+            const newMember = {
                 'รหัสสมาชิก': document.getElementById('newMemberId').value.trim(),
                 'ชื่อ นามสกุล': document.getElementById('newMemberName').value.trim(),
                 'เบอร์โทรศัพท์': document.getElementById('newMemberPhone').value.trim(),
                 'อายุ': document.getElementById('newMemberAge').value.trim(),
                 'ประเภทสมาชิก': document.getElementById('newMemberType').value,
-                'วันที่เริ่มสมัคร': document.getElementById('newMemberStartDate').value || new Date().toISOString().split('T')[0],
+                'วันที่เริ่มสมัคร': document.getElementById('newMemberStartDate').value || new Date().toISOString()
+                    .split('T')[0],
                 'รหัสผ่าน': document.getElementById('newMemberPassword').value.trim() || '1234'
             };
-            const result=await appendSheetData('ข้อมูลสมาชิก', newMember);
-            if(result && !result.error){ showAlert('✅ เพิ่มสมาชิกสำเร็จ!','success'); closeAddMemberModal(); await loadAdminDashboard(); }
-            else showAlert('❌ ไม่สามารถเพิ่มสมาชิกได้: '+(result.error||'ไม่ทราบสาเหตุ'),'danger');
+            const result = await appendSheetData('ข้อมูลสมาชิก', newMember);
+            if (result && !result.error) { showAlert('✅ เพิ่มสมาชิกสำเร็จ!', 'success');
+                closeAddMemberModal();
+                await loadAdminDashboard(); } else showAlert('❌ ไม่สามารถเพิ่มสมาชิกได้: ' + (result.error ||
+                'ไม่ทราบสาเหตุ'), 'danger');
         });
 
         // ================================================================
         // รีเฟรช Admin
         // ================================================================
-        async function refreshAdminData(){ showAlert('🔄 กำลังโหลดข้อมูลใหม่...','info',2000); await loadAdminDashboard(); showAlert('✅ โหลดข้อมูลสำเร็จ!','success',2000); }
+        async function refreshAdminData() { showAlert('🔄 กำลังโหลดข้อมูลใหม่...', 'info', 2000);
+            await loadAdminDashboard();
+            showAlert('✅ โหลดข้อมูลสำเร็จ!', 'success', 2000); }
 
         // ================================================================
         // ฟอร์มบันทึกน้ำหนัก
         // ================================================================
-        document.getElementById('weightForm').addEventListener('submit', function(e){
+        document.getElementById('weightForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const memberId=localStorage.getItem('gym_member_id');
-            if(!memberId){ showAlert('กรุณาเข้าสู่ระบบก่อน','warning'); return; }
-            const weight=parseFloat(document.getElementById('weightInput').value);
-            const height=parseFloat(document.getElementById('heightInput').value);
-            if(!weight||!height){ showAlert('กรุณากรอกน้ำหนักและส่วนสูงให้ครบ','warning'); return; }
-            if(weight<20||weight>300||height<50||height>300){ showAlert('กรุณากรอกค่าที่ถูกต้อง','warning'); return; }
-            const bmi=calculateBMI(weight, height); const health=getHealthStatus(bmi);
+            const memberId = localStorage.getItem('gym_member_id');
+            if (!memberId) { showAlert('กรุณาเข้าสู่ระบบก่อน', 'warning'); return; }
+            const weight = parseFloat(document.getElementById('weightInput').value);
+            const height = parseFloat(document.getElementById('heightInput').value);
+            if (!weight || !height) { showAlert('กรุณากรอกน้ำหนักและส่วนสูงให้ครบ', 'warning'); return; }
+            if (weight < 20 || weight > 300 || height < 50 || height > 300) { showAlert('กรุณากรอกค่าที่ถูกต้อง',
+                    'warning'); return; }
+            const bmi = calculateBMI(weight, height);
+            const health = getHealthStatus(bmi);
             saveWeightRecord_local(memberId, weight, height, bmi, health.status);
-            showAlert('✅ บันทึกน้ำหนักสำเร็จ!','success');
+            showAlert('✅ บันทึกน้ำหนักสำเร็จ!', 'success');
             this.reset();
             displayHealthStatus(memberId);
             displayWeightChart(memberId);
@@ -1015,32 +1417,31 @@
         // ================================================================
         // ตรวจสอบ Session และ Auto-refresh
         // ================================================================
-        document.addEventListener('DOMContentLoaded', function(){
+        document.addEventListener('DOMContentLoaded', function() {
             loadDarkModePreference();
-            const role=localStorage.getItem('gym_role');
-            const memberId=localStorage.getItem('gym_member_id');
-            if(role==='admin') loadAdminDashboard();
-            else if(role==='member' && memberId) loadMemberDashboard(memberId);
+            const role = localStorage.getItem('gym_role');
+            const memberId = localStorage.getItem('gym_member_id');
+            if (role === 'admin') loadAdminDashboard();
+            else if (role === 'member' && memberId) loadMemberDashboard(memberId);
             else { document.getElementById('loginPage').classList.remove('hidden'); }
         });
 
-        setInterval(async function(){
-            const role=localStorage.getItem('gym_role');
-            const memberId=localStorage.getItem('gym_member_id');
-            if(role==='member' && memberId){
-                const members=await fetchMembers();
-                const attendance=await fetchAttendance();
-                const payments=await fetchPayments();
-                const found=findMemberById(members, memberId);
-                if(found){
-                    // ★ อัปเดตเฉพาะส่วนที่เกี่ยวข้อง
+        setInterval(async function() {
+            const role = localStorage.getItem('gym_role');
+            const memberId = localStorage.getItem('gym_member_id');
+            if (role === 'member' && memberId) {
+                const members = await fetchMembers();
+                const attendance = await fetchAttendance();
+                const payments = await fetchPayments();
+                const found = findMemberById(members, memberId);
+                if (found) {
                     const { points, title } = calculatePointsAndTitle(memberId, attendance);
                     displayPersonalInfo(found, points, title);
                     displayLeaderboard(members, attendance, memberId);
                     displayDisciplineScore(memberId, attendance);
                     displayExpiryDate(memberId, payments);
                     displayPeakHoursChart(attendance);
-                    // อัปเดตสถิติรวม
+
                     const active = members.filter(m => m['ชื่อ นามสกุล'] && m['ชื่อ นามสกุล'].trim() !== '');
                     document.getElementById('totalMembers').textContent = active.length;
                     const today = new Date();
@@ -1051,11 +1452,11 @@
                         if (d && isSameDate(d, today)) todayCount++;
                     });
                     document.getElementById('todayAttendance').textContent = todayCount;
-                    // ★ อัปเดตจำนวนคนฉายาเดียวกัน
                     let sameTitleCount = 0;
                     if (title) {
                         active.forEach(m => {
-                            const { title: t } = calculatePointsAndTitle(m['รหัสสมาชิก'], attendance);
+                            const { title: t } = calculatePointsAndTitle(m['รหัสสมาชิก'],
+                            attendance);
                             if (t === title) sameTitleCount++;
                         });
                     }
@@ -1064,7 +1465,7 @@
             }
         }, 30000);
 
-        console.log('✅ Gym Analytics Pro (ปรับปรุงปุ่มโหลดใหม่ + คนฉายาเดียวกัน) โหลดสำเร็จ');
+        console.log('✅ Gym Analytics Pro (ระบบเปลี่ยนรหัสผ่าน + กู้รหัสผ่าน) โหลดสำเร็จ');
     </script>
 </body>
 </html>
