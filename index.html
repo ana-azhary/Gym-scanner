@@ -224,7 +224,7 @@
     <div id="alertContainer" class="fixed top-4 right-4 z-50 space-y-2 max-w-sm w-full"></div>
 
     <!-- ============================================================ -->
-    <!-- JavaScript (ฉบับสมบูรณ์ แก้ไขกราฟ 7 วันล่าสุดให้ทำงาน) -->
+    <!-- JavaScript (แก้ไขเฉพาะส่วนกราฟ 7 วันล่าสุด) -->
     <!-- ============================================================ -->
     <script>
         // ================================================================
@@ -263,7 +263,7 @@
         async function fetchPayments() { return await fetchSheetData('บันทึกการจ่ายเงิน'); }
 
         // ================================================================
-        // ฟังก์ชันแปลงวันที่
+        // ฟังก์ชันแปลงวันที่ (รองรับปี พ.ศ. และรูปแบบต่างๆ)
         // ================================================================
         function parseDateFromSheet(dateStr) {
             if (!dateStr) return null;
@@ -711,7 +711,7 @@
         }
 
         // ================================================================
-        // Admin Dashboard (แก้ไขกราฟ 7 วันล่าสุดให้ทำงาน)
+        // Admin Dashboard (แก้ไขเฉพาะกราฟ 7 วันล่าสุด)
         // ================================================================
         let adminRevenueChartInstance=null, adminAttendanceChartInstance=null;
         let adminMembers=[], adminAttendance=[], adminPayments=[];
@@ -721,7 +721,6 @@
             document.getElementById('memberDashboard').classList.add('hidden');
             document.getElementById('adminDashboard').classList.remove('hidden');
 
-            // ดึงข้อมูลดิบ
             const rawMembers = await fetchMembers();
             adminMembers = rawMembers.filter(m => m['ชื่อ นามสกุล'] && m['ชื่อ นามสกุล'].trim() !== '');
             adminAttendance = await fetchAttendance();
@@ -800,41 +799,48 @@
                 }
             });
 
-            // === กราฟ 7 วันล่าสุด (แก้ไขให้ทำงาน) ===
-            // สร้างรายการวันที่ 7 วันล่าสุด
-            const todayDate = new Date();
+            // ================================================================
+            // === กราฟ 7 วันล่าสุด (แก้ไขใหม่ตามที่ขอ) ===
+            // ================================================================
+            // 1. สร้างรายการวันที่ 7 วันล่าสุด
             const last7Days = [];
             for (let i = 6; i >= 0; i--) {
-                const d = new Date(todayDate);
+                const d = new Date();
                 d.setDate(d.getDate() - i);
-                const dateStr = d.toISOString().split('T')[0];
-                last7Days.push(dateStr);
+                last7Days.push(d.toISOString().split('T')[0]); // "YYYY-MM-DD"
             }
 
-            // นับจำนวนการเข้าใช้ในแต่ละวัน
+            // 2. นับจำนวนการเข้าใช้ในแต่ละวัน โดยใช้ parseDateFromSheet
             const dayCounts = last7Days.map(day => {
+                const targetDate = new Date(day);
+                targetDate.setHours(0, 0, 0, 0);
                 return adminAttendance.filter(log => {
-                    const logDate = log['วันที่เข้าใช้งาน'] || '';
-                    return logDate.startsWith(day);
+                    const dateStr = log['วันที่เข้าใช้งาน'] || '';
+                    if (!dateStr) return false;
+                    const logDate = parseDateFromSheet(dateStr);
+                    if (!logDate) return false;
+                    logDate.setHours(0, 0, 0, 0);
+                    return logDate.getTime() === targetDate.getTime();
                 }).length;
             });
 
-            // แสดงข้อมูลใน Console เพื่อ Debug
-            console.log('📊 7 Days Data:', last7Days, dayCounts);
+            // 3. แสดงข้อมูลใน Console เพื่อ Debug
+            console.log('📊 7 Days Data (แก้ไขแล้ว):', last7Days, dayCounts);
 
-            // ทำลายกราฟเก่าก่อนสร้างใหม่
+            // 4. ทำลายกราฟเก่าก่อนสร้างใหม่
             if (adminAttendanceChartInstance) {
                 adminAttendanceChartInstance.destroy();
                 adminAttendanceChartInstance = null;
             }
 
+            // 5. สร้างกราฟใหม่
             const attCtx = document.getElementById('adminAttendanceChart').getContext('2d');
             adminAttendanceChartInstance = new Chart(attCtx, {
                 type: 'line',
                 data: {
                     labels: last7Days.map(d => {
                         const parts = d.split('-');
-                        return `${parts[2]}/${parts[1]}`;
+                        return `${parts[2]}/${parts[1]}`; // แสดงเป็น DD/MM
                     }),
                     datasets: [{
                         label: 'จำนวนเข้าใช้',
