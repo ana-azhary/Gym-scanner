@@ -51,7 +51,7 @@
 <body>
 
     <!-- ============================================================ -->
-    <!-- หน้า Login (ปรับปรุง: บังคับรหัสผ่านสำหรับสมาชิก) -->
+    <!-- หน้า Login -->
     <!-- ============================================================ -->
     <div id="loginPage" class="min-h-screen bg-health-gradient flex items-center justify-center p-4">
         <div class="card-gym max-w-md w-full p-8">
@@ -77,7 +77,7 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- Dashboard สมาชิก (Member) – พร้อมฟังก์ชันครบ -->
+    <!-- Dashboard สมาชิก (Member) -->
     <!-- ============================================================ -->
     <div id="memberDashboard" class="min-h-screen bg-gray-50 dark:bg-gray-900 hidden">
         <nav class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-40">
@@ -135,7 +135,7 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- Admin Dashboard (เหมือนเดิม) -->
+    <!-- Admin Dashboard (แก้ไข: กราฟ 7 วัน + สมาชิกเฉพาะที่มีชื่อ) -->
     <!-- ============================================================ -->
     <div id="adminDashboard" class="min-h-screen bg-gray-50 dark:bg-gray-900 hidden">
         <nav class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-40">
@@ -149,6 +149,7 @@
             </div>
         </nav>
         <div class="max-w-7xl mx-auto px-4 py-8">
+            <!-- สถิติ 6 ตัว -->
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
                 <div class="card-gym p-4 text-center"><div class="text-sm text-gray-500 dark:text-gray-400">👥 สมาชิก</div><div id="adminTotalMembers" class="text-2xl font-bold text-gray-800 dark:text-white">0</div></div>
                 <div class="card-gym p-4 text-center"><div class="text-sm text-gray-500 dark:text-gray-400">✅ เข้าวันนี้</div><div id="adminTodayAttendance" class="text-2xl font-bold text-green-600 dark:text-green-400">0</div></div>
@@ -157,10 +158,14 @@
                 <div class="card-gym p-4 text-center"><div class="text-sm text-gray-500 dark:text-gray-400">📈 สมาชิกใหม่เดือนนี้</div><div id="adminNewMembers" class="text-2xl font-bold text-purple-600 dark:text-purple-400">0</div></div>
                 <div class="card-gym p-4 text-center"><div class="text-sm text-gray-500 dark:text-gray-400">🔄 อัตราต่ออายุ</div><div id="adminRenewRate" class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">0%</div></div>
             </div>
+
+            <!-- กราฟ 2 ตัว -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 <div class="card-gym p-6"><h3 class="font-bold text-lg mb-4 text-gray-800 dark:text-white">💰 รายได้รายเดือน</h3><canvas id="adminRevenueChart" height="200"></canvas></div>
                 <div class="card-gym p-6"><h3 class="font-bold text-lg mb-4 text-gray-800 dark:text-white">📊 การเข้าใช้ 7 วันล่าสุด</h3><canvas id="adminAttendanceChart" height="200"></canvas></div>
             </div>
+
+            <!-- ตารางสมาชิก -->
             <div class="card-gym p-6 mb-8">
                 <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
                     <h3 class="font-bold text-lg text-gray-800 dark:text-white">📋 รายชื่อสมาชิกทั้งหมด</h3>
@@ -174,7 +179,11 @@
                     <table class="admin-table"><thead><tr><th>รหัส</th><th>ชื่อ</th><th>เบอร์โทร</th><th>ประเภท</th><th>แต้ม</th><th>ฉายา</th><th>หมดอายุ</th></tr></thead><tbody id="memberTableBody"></tbody></table>
                 </div>
             </div>
+
+            <!-- ตารางเข้าใช้ -->
             <div class="card-gym p-6 mb-8"><h3 class="font-bold text-lg mb-4 text-gray-800 dark:text-white">⏱️ การเข้าใช้ล่าสุด (10 รายการ)</h3><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>รหัสบันทึก</th><th>สมาชิก</th><th>วันที่</th><th>เวลา</th></tr></thead><tbody id="adminAttendanceTableBody"></tbody></table></div></div>
+
+            <!-- ตารางจ่ายเงิน -->
             <div class="card-gym p-6"><h3 class="font-bold text-lg mb-4 text-gray-800 dark:text-white">💳 การจ่ายเงินล่าสุด (10 รายการ)</h3><div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>รหัส</th><th>สมาชิก</th><th>วันที่รับ</th><th>จำนวน</th><th>หมดอายุ</th></tr></thead><tbody id="adminPaymentTableBody"></tbody></table></div></div>
         </div>
     </div>
@@ -215,7 +224,7 @@
     <div id="alertContainer" class="fixed top-4 right-4 z-50 space-y-2 max-w-sm w-full"></div>
 
     <!-- ============================================================ -->
-    <!-- JavaScript (ฉบับสมบูรณ์ พร้อมฟังก์ชัน Member ทั้งหมด) -->
+    <!-- JavaScript (ฉบับสมบูรณ์ แก้ไขแล้ว) -->
     <!-- ============================================================ -->
     <script>
         // ================================================================
@@ -254,7 +263,7 @@
         async function fetchPayments() { return await fetchSheetData('บันทึกการจ่ายเงิน'); }
 
         // ================================================================
-        // ฟังก์ชันแปลงวันที่ (รองรับปี พ.ศ.)
+        // ฟังก์ชันแปลงวันที่
         // ================================================================
         function parseDateFromSheet(dateStr) {
             if (!dateStr) return null;
@@ -286,7 +295,7 @@
         }
 
         // ================================================================
-        // ฟังก์ชันคำนวณหลัก
+        // ฟังก์ชันคำนวณ
         // ================================================================
         function calculatePointsAndTitle(memberId, attendanceLogs) {
             const totalVisits = attendanceLogs.filter(log => log['สมาชิกอ้างอิง'] === memberId).length;
@@ -360,7 +369,7 @@
         }
         function findMemberById(members, memberId) { return members.find(m => m['รหัสสมาชิก'] === memberId); }
 
-        // ===== ระบบบันทึกน้ำหนัก (LocalStorage) =====
+        // ===== ระบบบันทึกน้ำหนัก =====
         function getWeightHistory(memberId) { const key=`weight_${memberId}`; const data=localStorage.getItem(key); return data?JSON.parse(data):[]; }
         function saveWeightRecord_local(memberId, weight, height, bmi, status) {
             const key=`weight_${memberId}`; const history=getWeightHistory(memberId);
@@ -475,7 +484,7 @@
         }
 
         // ================================================================
-        // ฟังก์ชัน Member Dashboard (ครบทุกฟังก์ชัน)
+        // Member Dashboard (ครบทุกฟังก์ชัน)
         // ================================================================
         let progressChartInstance=null, weightChartInstance=null, peakHoursChartInstance=null;
 
@@ -702,7 +711,7 @@
         }
 
         // ================================================================
-        // Admin Dashboard (ฟังก์ชันต่างๆ)
+        // Admin Dashboard (แก้ไขแล้ว)
         // ================================================================
         let adminRevenueChartInstance=null, adminAttendanceChartInstance=null;
         let adminMembers=[], adminAttendance=[], adminPayments=[];
@@ -711,53 +720,148 @@
             document.getElementById('loginPage').classList.add('hidden');
             document.getElementById('memberDashboard').classList.add('hidden');
             document.getElementById('adminDashboard').classList.remove('hidden');
-            adminMembers=await fetchMembers();
-            adminAttendance=await fetchAttendance();
-            adminPayments=await fetchPayments();
 
-            const active=adminMembers.filter(m=>m['ชื่อ นามสกุล'] && m['ชื่อ นามสกุล'].trim()!=='');
-            document.getElementById('adminTotalMembers').textContent=active.length;
+            // ดึงข้อมูลดิบ
+            const rawMembers = await fetchMembers();
+            // กรองเฉพาะสมาชิกที่มีชื่อ
+            adminMembers = rawMembers.filter(m => m['ชื่อ นามสกุล'] && m['ชื่อ นามสกุล'].trim() !== '');
+            adminAttendance = await fetchAttendance();
+            adminPayments = await fetchPayments();
 
-            const today=new Date(); today.setHours(0,0,0,0);
-            let todayCount=0; adminAttendance.forEach(log=>{ const d=parseDateFromSheet(log['วันที่เข้าใช้งาน']||log['เวลาที่เข้าใช้งาน']); if(d && isSameDate(d,today)) todayCount++; });
-            document.getElementById('adminTodayAttendance').textContent=todayCount;
+            // สถิติ
+            document.getElementById('adminTotalMembers').textContent = adminMembers.length;
 
-            const expiring=countExpiringSoon(adminPayments, adminMembers);
-            document.getElementById('adminExpiringSoon').textContent=expiring;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            let todayCount = 0;
+            adminAttendance.forEach(log => {
+                const d = parseDateFromSheet(log['วันที่เข้าใช้งาน'] || log['เวลาที่เข้าใช้งาน']);
+                if (d && isSameDate(d, today)) todayCount++;
+            });
+            document.getElementById('adminTodayAttendance').textContent = todayCount;
 
-            let totalRevenue=0; adminPayments.forEach(p=>{ totalRevenue += parseFloat(p['จำนวนเงินที่รับ'])||0; });
-            document.getElementById('adminTotalRevenue').textContent=totalRevenue.toLocaleString()+' ฿';
+            const expiringCount = countExpiringSoon(adminPayments, rawMembers);
+            document.getElementById('adminExpiringSoon').textContent = expiringCount;
 
-            const now=new Date(); const thisMonth=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
-            let newMembers=0; adminMembers.forEach(m=>{ const d=parseDateFromSheet(m['วันที่เริ่มสมัคร']); if(d){ const mStr=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); if(mStr===thisMonth) newMembers++; } });
-            document.getElementById('adminNewMembers').textContent=newMembers;
+            let totalRevenue = 0;
+            adminPayments.forEach(p => { totalRevenue += parseFloat(p['จำนวนเงินที่รับ']) || 0; });
+            document.getElementById('adminTotalRevenue').textContent = totalRevenue.toLocaleString() + ' ฿';
 
-            const paymentCount={}; adminPayments.forEach(p=>{ const id=p['สมาชิกอ้างอิง']; if(id) paymentCount[id]=(paymentCount[id]||0)+1; });
-            let renewCount=0; Object.values(paymentCount).forEach(c=>{ if(c>1) renewCount++; });
-            document.getElementById('adminRenewRate').textContent= (active.length>0?Math.round((renewCount/active.length)*100):0)+'%';
+            const now = new Date();
+            const thisMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+            let newMembers = 0;
+            adminMembers.forEach(m => {
+                const d = parseDateFromSheet(m['วันที่เริ่มสมัคร']);
+                if (d) {
+                    const mStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+                    if (mStr === thisMonth) newMembers++;
+                }
+            });
+            document.getElementById('adminNewMembers').textContent = newMembers;
 
-            // กราฟรายได้
-            const monthlyRevenue={}; adminPayments.forEach(p=>{ const month=p['เดือนปีที่ชำระ']||''; const amt=parseFloat(p['จำนวนเงินที่รับ'])||0; if(month) monthlyRevenue[month]=(monthlyRevenue[month]||0)+amt; });
-            const revMonths=Object.keys(monthlyRevenue).sort(); const revData=revMonths.map(m=>monthlyRevenue[m]);
-            const revCtx=document.getElementById('adminRevenueChart').getContext('2d');
-            if(adminRevenueChartInstance) adminRevenueChartInstance.destroy();
-            adminRevenueChartInstance=new Chart(revCtx, { type:'bar', data:{ labels:revMonths, datasets:[{ label:'รายได้ (บาท)', data:revData, backgroundColor:'rgba(52,152,219,0.7)', borderColor:'#3498DB', borderWidth:2, borderRadius:6 }] }, options:{ responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true}} } });
+            const paymentCount = {};
+            adminPayments.forEach(p => {
+                const id = p['สมาชิกอ้างอิง'];
+                if (id) paymentCount[id] = (paymentCount[id] || 0) + 1;
+            });
+            let renewCount = 0;
+            Object.values(paymentCount).forEach(c => { if (c > 1) renewCount++; });
+            const renewRate = adminMembers.length > 0 ? Math.round((renewCount / adminMembers.length) * 100) : 0;
+            document.getElementById('adminRenewRate').textContent = renewRate + '%';
 
-            // กราฟ 7 วัน
-            const last7Days=[]; for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); last7Days.push(d.toISOString().split('T')[0]); }
-            const dayCounts=last7Days.map(day=>adminAttendance.filter(log=>(log['วันที่เข้าใช้งาน']||'').startsWith(day)).length);
-            const attCtx=document.getElementById('adminAttendanceChart').getContext('2d');
-            if(adminAttendanceChartInstance) adminAttendanceChartInstance.destroy();
-            adminAttendanceChartInstance=new Chart(attCtx, { type:'line', data:{ labels:last7Days.map(d=>{ const p=d.split('-'); return `${p[2]}/${p[1]}`; }), datasets:[{ label:'จำนวนเข้าใช้', data:dayCounts, borderColor:'#2ECC71', backgroundColor:'rgba(46,204,113,0.2)', fill:true, tension:0.3, pointBackgroundColor:'#2ECC71', pointBorderColor:'#fff', pointBorderWidth:2, pointRadius:5 }] }, options:{ responsive:true, plugins:{legend:{display:false}}, scales:{y:{beginAtZero:true, ticks:{stepSize:1}}} } });
+            // === กราฟรายได้ ===
+            const monthlyRevenue = {};
+            adminPayments.forEach(p => {
+                const month = p['เดือนปีที่ชำระ'] || '';
+                const amt = parseFloat(p['จำนวนเงินที่รับ']) || 0;
+                if (month) monthlyRevenue[month] = (monthlyRevenue[month] || 0) + amt;
+            });
+            const revMonths = Object.keys(monthlyRevenue).sort();
+            const revData = revMonths.map(m => monthlyRevenue[m]);
 
+            const revCtx = document.getElementById('adminRevenueChart').getContext('2d');
+            if (adminRevenueChartInstance) adminRevenueChartInstance.destroy();
+            adminRevenueChartInstance = new Chart(revCtx, {
+                type: 'bar',
+                data: {
+                    labels: revMonths,
+                    datasets: [{
+                        label: 'รายได้ (บาท)',
+                        data: revData,
+                        backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                        borderColor: '#3498DB',
+                        borderWidth: 2,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+
+            // === กราฟ 7 วันล่าสุด (แก้ไขให้อัปเดต) ===
+            const last7Days = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                last7Days.push(d.toISOString().split('T')[0]);
+            }
+            const dayCounts = last7Days.map(day => {
+                return adminAttendance.filter(log => {
+                    const dStr = log['วันที่เข้าใช้งาน'] || '';
+                    return dStr.startsWith(day);
+                }).length;
+            });
+
+            const attCtx = document.getElementById('adminAttendanceChart').getContext('2d');
+            if (adminAttendanceChartInstance) {
+                adminAttendanceChartInstance.destroy();
+                adminAttendanceChartInstance = null;
+            }
+            adminAttendanceChartInstance = new Chart(attCtx, {
+                type: 'line',
+                data: {
+                    labels: last7Days.map(d => {
+                        const parts = d.split('-');
+                        return `${parts[2]}/${parts[1]}`;
+                    }),
+                    datasets: [{
+                        label: 'จำนวนเข้าใช้',
+                        data: dayCounts,
+                        borderColor: '#2ECC71',
+                        backgroundColor: 'rgba(46, 204, 113, 0.2)',
+                        fill: true,
+                        tension: 0.3,
+                        pointBackgroundColor: '#2ECC71',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                }
+            });
+
+            // === ตาราง ===
             renderMemberTable(adminMembers, adminAttendance, adminPayments);
             renderAdminAttendanceTable(adminAttendance, adminMembers);
             renderAdminPaymentTable(adminPayments, adminMembers);
 
-            if(expiring>0) showAlert(`⚠️ มีสมาชิก ${expiring} คนใกล้หมดอายุภายใน 7 วัน (คลิกที่การ์ดเพื่อดูรายละเอียด)`,'warning',6000);
-            if(newMembers>0) showAlert(`🎉 มีสมาชิกใหม่ ${newMembers} คนในเดือนนี้`,'success',5000);
+            // === แจ้งเตือน ===
+            if (expiringCount > 0) {
+                showAlert(`⚠️ มีสมาชิก ${expiringCount} คนใกล้หมดอายุภายใน 7 วัน (คลิกที่การ์ดเพื่อดูรายละเอียด)`, 'warning', 6000);
+            }
+            if (newMembers > 0) {
+                showAlert(`🎉 มีสมาชิกใหม่ ${newMembers} คนในเดือนนี้`, 'success', 5000);
+            }
         }
 
+        // ===== ตารางสมาชิก =====
         function renderMemberTable(members, attendance, payments) {
             const tbody=document.getElementById('memberTableBody');
             const searchInput=document.getElementById('memberSearchInput');
@@ -773,6 +877,8 @@
             }
             searchInput.addEventListener('input', render); render();
         }
+
+        // ===== ตารางเข้าใช้ =====
         function renderAdminAttendanceTable(attendance, members) {
             const tbody=document.getElementById('adminAttendanceTableBody');
             const sorted=attendance.slice().sort((a,b)=>(b['เวลาที่เข้าใช้งาน']||'').localeCompare(a['เวลาที่เข้าใช้งาน']||'')).slice(0,10);
@@ -782,6 +888,8 @@
                 return `<tr><td>${log['รหัสบันทึก']||'-'}</td><td>${name}</td><td>${log['วันที่เข้าใช้งาน']||'-'}</td><td>${log['เวลาที่เข้าใช้งาน']||'-'}</td></tr>`;
             }).join('');
         }
+
+        // ===== ตารางจ่ายเงิน =====
         function renderAdminPaymentTable(payments, members) {
             const tbody=document.getElementById('adminPaymentTableBody');
             const sorted=payments.slice().sort((a,b)=>(b['วันที่รับชำระ']||'').localeCompare(a['วันที่รับชำระ']||'')).slice(0,10);
@@ -889,7 +997,7 @@
             }
         }, 30000);
 
-        console.log('✅ Gym Analytics Pro (ฉบับสมบูรณ์) โหลดสำเร็จ');
+        console.log('✅ Gym Analytics Pro (ฉบับสมบูรณ์ แก้ไขกราฟ 7 วัน และสมาชิกเฉพาะที่มีชื่อ) โหลดสำเร็จ');
     </script>
 </body>
 </html>
