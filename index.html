@@ -135,7 +135,7 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- Admin Dashboard (ปรับกราฟ 7 วันล่าสุดให้ทำงาน) -->
+    <!-- Admin Dashboard -->
     <!-- ============================================================ -->
     <div id="adminDashboard" class="min-h-screen bg-gray-50 dark:bg-gray-900 hidden">
         <nav class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-40">
@@ -224,7 +224,7 @@
     <div id="alertContainer" class="fixed top-4 right-4 z-50 space-y-2 max-w-sm w-full"></div>
 
     <!-- ============================================================ -->
-    <!-- JavaScript (ฉบับสมบูรณ์ แก้ไขกราฟ 7 วันล่าสุด) -->
+    <!-- JavaScript (ฉบับสมบูรณ์ แก้ไขกราฟ 7 วันล่าสุดให้ทำงาน) -->
     <!-- ============================================================ -->
     <script>
         // ================================================================
@@ -723,7 +723,6 @@
 
             // ดึงข้อมูลดิบ
             const rawMembers = await fetchMembers();
-            // กรองเฉพาะสมาชิกที่มีชื่อ
             adminMembers = rawMembers.filter(m => m['ชื่อ นามสกุล'] && m['ชื่อ นามสกุล'].trim() !== '');
             adminAttendance = await fetchAttendance();
             adminPayments = await fetchPayments();
@@ -801,15 +800,18 @@
                 }
             });
 
-            // === กราฟ 7 วันล่าสุด (แก้ไขให้ทำงานด้วยข้อมูลจริง) ===
-            const last7Days = [];
+            // === กราฟ 7 วันล่าสุด (แก้ไขให้ทำงาน) ===
+            // สร้างรายการวันที่ 7 วันล่าสุด
             const todayDate = new Date();
+            const last7Days = [];
             for (let i = 6; i >= 0; i--) {
                 const d = new Date(todayDate);
                 d.setDate(d.getDate() - i);
-                last7Days.push(d.toISOString().split('T')[0]);
+                const dateStr = d.toISOString().split('T')[0];
+                last7Days.push(dateStr);
             }
 
+            // นับจำนวนการเข้าใช้ในแต่ละวัน
             const dayCounts = last7Days.map(day => {
                 return adminAttendance.filter(log => {
                     const logDate = log['วันที่เข้าใช้งาน'] || '';
@@ -817,11 +819,16 @@
                 }).length;
             });
 
-            const attCtx = document.getElementById('adminAttendanceChart').getContext('2d');
+            // แสดงข้อมูลใน Console เพื่อ Debug
+            console.log('📊 7 Days Data:', last7Days, dayCounts);
+
+            // ทำลายกราฟเก่าก่อนสร้างใหม่
             if (adminAttendanceChartInstance) {
                 adminAttendanceChartInstance.destroy();
                 adminAttendanceChartInstance = null;
             }
+
+            const attCtx = document.getElementById('adminAttendanceChart').getContext('2d');
             adminAttendanceChartInstance = new Chart(attCtx, {
                 type: 'line',
                 data: {
@@ -1014,6 +1021,7 @@
         }, 30000);
 
         console.log('✅ Gym Analytics Pro (แก้ไขกราฟ 7 วันล่าสุด) โหลดสำเร็จ');
+        console.log('📊 7 Days Chart ถูกสร้างด้วยข้อมูลล่าสุด');
     </script>
 </body>
 </html>
