@@ -167,7 +167,7 @@
 <body>
 
     <!-- ============================================================ -->
-    <!-- หน้า Login (ปรับปรุง: เพิ่ม Username และ Password) -->
+    <!-- หน้า Login -->
     <!-- ============================================================ -->
     <div id="loginPage" class="min-h-screen bg-health-gradient flex items-center justify-center p-4">
         <div class="card-gym max-w-md w-full p-8">
@@ -205,10 +205,9 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- Dashboard หลัก (สำหรับสมาชิกทั่วไป) -->
+    <!-- Dashboard สมาชิก (Member) -->
     <!-- ============================================================ -->
     <div id="memberDashboard" class="min-h-screen bg-gray-50 dark:bg-gray-900 hidden">
-        <!-- Navbar -->
         <nav class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-40">
             <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
                 <div class="flex items-center gap-2">
@@ -226,8 +225,7 @@
         </nav>
 
         <div class="max-w-7xl mx-auto px-4 py-8">
-
-            <!-- ====== สถิติรวม (4 การ์ด) ====== -->
+            <!-- สถิติรวม 4 การ์ด -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <div class="card-gym p-6">
                     <div class="text-sm text-gray-500 dark:text-gray-400">👥 สมาชิกทั้งหมด</div>
@@ -247,32 +245,26 @@
                 </div>
             </div>
 
-            <!-- ====== 3 คอลัมน์ ====== -->
+            <!-- 3 คอลัมน์ -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- คอลัมน์ซ้าย -->
+                <!-- ซ้าย -->
                 <div class="lg:col-span-1">
-                    <!-- ข้อมูลส่วนตัว -->
                     <div class="card-gym p-6">
                         <h3 class="font-bold text-lg mb-4 text-gray-800 dark:text-white">👤 ข้อมูลส่วนตัว</h3>
                         <div id="personalInfo" class="space-y-3"></div>
                     </div>
-
-                    <!-- Leaderboard -->
                     <div class="card-gym p-6 mt-6">
                         <h3 class="font-bold text-lg mb-4 text-gray-800 dark:text-white">🏆 Leaderboard</h3>
                         <div id="leaderboard" class="space-y-2 max-h-80 overflow-y-auto"></div>
                     </div>
                 </div>
 
-                <!-- คอลัมน์ขวา -->
+                <!-- ขวา -->
                 <div class="lg:col-span-2">
-                    <!-- กราฟพัฒนาการ -->
                     <div class="card-gym p-6">
                         <h3 class="font-bold text-lg mb-4 text-gray-800 dark:text-white">📊 พัฒนาการรายเดือน</h3>
                         <canvas id="progressChart" height="200"></canvas>
                     </div>
-
-                    <!-- กราฟ Peak Hours -->
                     <div class="card-gym p-6 mt-6">
                         <h3 class="font-bold text-lg mb-4 text-gray-800 dark:text-white">🕐 ช่วงเวลาที่คนเข้าใช้มากที่สุด</h3>
                         <div class="grid grid-cols-3 gap-3 mb-4">
@@ -292,7 +284,6 @@
                         <canvas id="peakHoursChart" height="150"></canvas>
                     </div>
 
-                    <!-- วินัย + วันหมดอายุ -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                         <div class="card-gym p-6">
                             <h4 class="font-semibold mb-2 text-gray-800 dark:text-white">🎯 คะแนนวินัย</h4>
@@ -306,7 +297,6 @@
                         </div>
                     </div>
 
-                    <!-- ระบบบันทึกน้ำหนัก -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                         <div class="card-gym p-6">
                             <h3 class="font-bold text-lg mb-4 text-gray-800 dark:text-white">⚖️ บันทึกน้ำหนัก</h3>
@@ -332,7 +322,6 @@
                             </form>
                             <div id="weightSaveResult" class="mt-3 text-sm hidden"></div>
                         </div>
-
                         <div class="card-gym p-6">
                             <h3 class="font-bold text-lg mb-4 text-gray-800 dark:text-white">📊 สถานะสุขภาพ</h3>
                             <div id="healthStatusDisplay" class="space-y-3"></div>
@@ -347,10 +336,9 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- Admin Dashboard (สำหรับผู้ดูแลระบบ) -->
+    <!-- Admin Dashboard -->
     <!-- ============================================================ -->
     <div id="adminDashboard" class="min-h-screen bg-gray-50 dark:bg-gray-900 hidden">
-        <!-- Navbar -->
         <nav class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-40">
             <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center flex-wrap gap-2">
                 <div class="flex items-center gap-2">
@@ -369,8 +357,8 @@
 
         <div class="max-w-7xl mx-auto px-4 py-8">
 
-            <!-- ====== สถิติรวม (Admin) ====== -->
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 mb-8">
+            <!-- สถิติรวม 6 ตัว -->
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
                 <div class="card-gym p-4 text-center">
                     <div class="text-sm text-gray-500 dark:text-gray-400">👥 สมาชิก</div>
                     <div id="adminTotalMembers" class="text-2xl font-bold text-gray-800 dark:text-white">0</div>
@@ -397,7 +385,7 @@
                 </div>
             </div>
 
-            <!-- ====== กราฟ Admin ====== -->
+            <!-- กราฟ Admin -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 <div class="card-gym p-6">
                     <h3 class="font-bold text-lg mb-4 text-gray-800 dark:text-white">💰 รายได้รายเดือน</h3>
@@ -409,7 +397,7 @@
                 </div>
             </div>
 
-            <!-- ====== ตารางสมาชิกทั้งหมด ====== -->
+            <!-- ตารางสมาชิกทั้งหมด -->
             <div class="card-gym p-6 mb-8">
                 <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
                     <h3 class="font-bold text-lg text-gray-800 dark:text-white">📋 รายชื่อสมาชิกทั้งหมด</h3>
@@ -419,6 +407,10 @@
                         <button onclick="showAddMemberModal()"
                                 class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
                             + เพิ่มสมาชิก
+                        </button>
+                        <button onclick="refreshAdminData()"
+                                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">
+                            🔄 โหลดใหม่
                         </button>
                     </div>
                 </div>
@@ -442,7 +434,7 @@
                 </div>
             </div>
 
-            <!-- ====== ตารางการเข้าใช้ล่าสุด ====== -->
+            <!-- ตารางการเข้าใช้ล่าสุด -->
             <div class="card-gym p-6 mb-8">
                 <h3 class="font-bold text-lg mb-4 text-gray-800 dark:text-white">⏱️ การเข้าใช้ล่าสุด (10 รายการ)</h3>
                 <div class="admin-table-wrap">
@@ -462,7 +454,7 @@
                 </div>
             </div>
 
-            <!-- ====== ตารางการจ่ายเงินล่าสุด ====== -->
+            <!-- ตารางการจ่ายเงินล่าสุด -->
             <div class="card-gym p-6">
                 <h3 class="font-bold text-lg mb-4 text-gray-800 dark:text-white">💳 การจ่ายเงินล่าสุด (10 รายการ)</h3>
                 <div class="admin-table-wrap">
@@ -486,7 +478,7 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- Modal สำหรับเพิ่มสมาชิก (Admin) -->
+    <!-- Modal สำหรับเพิ่มสมาชิก -->
     <!-- ============================================================ -->
     <div id="addMemberModal" class="modal-overlay">
         <div class="modal-box">
@@ -538,11 +530,11 @@
     <div id="alertContainer" class="fixed top-4 right-4 z-50 space-y-2 max-w-sm w-full"></div>
 
     <!-- ============================================================ -->
-    <!-- JavaScript (ปรับปรุงใหม่ทั้งหมด) -->
+    <!-- JavaScript (ปรับปรุงระบบให้ดึงข้อมูลจากชีตอย่างถูกต้อง) -->
     <!-- ============================================================ -->
     <script>
         // ================================================================
-        //  SECTION 1: ตั้งค่า URL ของ SheetBest
+        //  SECTION 1: ตั้งค่า URL ของ SheetBest (เปลี่ยนเป็นของท่าน)
         // ================================================================
         const SHEETBEST_URL = 'https://api.sheetbest.com/sheets/78b28641-6ec3-45b2-9cd3-e1bd4df767fc';
 
@@ -832,7 +824,6 @@
             const html = document.getElementById('htmlRoot');
             html.classList.toggle('dark');
             const isDark = html.classList.contains('dark');
-            // อัปเดตไอคอน
             document.querySelectorAll('#darkIcon, #darkIconAdmin').forEach(el => {
                 el.textContent = isDark ? '☀️' : '🌙';
             });
@@ -864,7 +855,6 @@
                 return;
             }
 
-            // ตรวจสอบ Admin
             if (username === 'admin' && password === 'admin123') {
                 document.getElementById('loginError').classList.add('hidden');
                 localStorage.setItem('gym_role', 'admin');
@@ -873,11 +863,9 @@
                 return;
             }
 
-            // ตรวจสอบสมาชิกทั่วไป: ใช้ username เป็นรหัสสมาชิก
             const members = await fetchMembers();
             const found = findMemberById(members, username);
             if (found) {
-                // สมาชิกทั่วไปไม่ต้องใช้รหัสผ่าน (หรือถ้ามีให้ตรวจสอบด้วยก็ได้)
                 document.getElementById('loginError').classList.add('hidden');
                 localStorage.setItem('gym_role', 'member');
                 localStorage.setItem('gym_member_id', username);
@@ -885,7 +873,6 @@
                 return;
             }
 
-            // ถ้าไม่พบทั้ง Admin และสมาชิก
             document.getElementById('loginError').classList.remove('hidden');
             document.getElementById('loginError').textContent = '❌ ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
         });
@@ -1432,29 +1419,42 @@
         }
 
         // ================================================================
-        //  SECTION 10: ฟังก์ชันโหลด Admin Dashboard
+        //  SECTION 10: ฟังก์ชันโหลด Admin Dashboard (แก้ไขให้ใช้ข้อมูลจากชีต)
         // ================================================================
 
         let adminRevenueChartInstance = null;
         let adminAttendanceChartInstance = null;
+
+        // ตัวแปรเก็บข้อมูลล่าสุดสำหรับ Admin
+        let adminMembers = [];
+        let adminAttendance = [];
+        let adminPayments = [];
 
         async function loadAdminDashboard() {
             document.getElementById('loginPage').classList.add('hidden');
             document.getElementById('memberDashboard').classList.add('hidden');
             document.getElementById('adminDashboard').classList.remove('hidden');
 
-            const members = await fetchMembers();
-            const attendance = await fetchAttendance();
-            const payments = await fetchPayments();
+            // ดึงข้อมูลทั้งหมด
+            adminMembers = await fetchMembers();
+            adminAttendance = await fetchAttendance();
+            adminPayments = await fetchPayments();
+
+            // ตรวจสอบว่าข้อมูลมีหรือไม่
+            console.log('Admin Data loaded:', {
+                members: adminMembers.length,
+                attendance: adminAttendance.length,
+                payments: adminPayments.length
+            });
 
             // สถิติรวม
-            const activeMembers = members.filter(m => m['ชื่อ นามสกุล'] && m['ชื่อ นามสกุล'].trim() !== '');
+            const activeMembers = adminMembers.filter(m => m['ชื่อ นามสกุล'] && m['ชื่อ นามสกุล'].trim() !== '');
             document.getElementById('adminTotalMembers').textContent = activeMembers.length;
 
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             let todayCount = 0;
-            attendance.forEach(log => {
+            adminAttendance.forEach(log => {
                 const dateStr = log['วันที่เข้าใช้งาน'] || log['เวลาที่เข้าใช้งาน'];
                 if (dateStr) {
                     const d = parseDateFromSheet(dateStr);
@@ -1463,12 +1463,12 @@
             });
             document.getElementById('adminTodayAttendance').textContent = todayCount;
 
-            const expiringCount = countExpiringSoon(payments, members);
+            const expiringCount = countExpiringSoon(adminPayments, adminMembers);
             document.getElementById('adminExpiringSoon').textContent = expiringCount;
 
             // รายได้รวม
             let totalRevenue = 0;
-            payments.forEach(p => {
+            adminPayments.forEach(p => {
                 const amt = parseFloat(p['จำนวนเงินที่รับ']) || 0;
                 totalRevenue += amt;
             });
@@ -1478,7 +1478,7 @@
             const now = new Date();
             const thisMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
             let newMembers = 0;
-            members.forEach(m => {
+            adminMembers.forEach(m => {
                 const start = m['วันที่เริ่มสมัคร'];
                 if (start) {
                     const d = parseDateFromSheet(start);
@@ -1490,10 +1490,9 @@
             });
             document.getElementById('adminNewMembers').textContent = newMembers;
 
-            // อัตราต่ออายุ (สมมติ: นับจากสมาชิกที่จ่ายเงินซ้ำ)
-            // ง่ายๆ: ใช้จำนวนสมาชิกที่มียอดจ่ายมากกว่า 1 ครั้ง
+            // อัตราต่ออายุ
             const paymentCount = {};
-            payments.forEach(p => {
+            adminPayments.forEach(p => {
                 const id = p['สมาชิกอ้างอิง'];
                 if (id) paymentCount[id] = (paymentCount[id] || 0) + 1;
             });
@@ -1504,7 +1503,7 @@
 
             // กราฟรายได้รายเดือน
             const monthlyRevenue = {};
-            payments.forEach(p => {
+            adminPayments.forEach(p => {
                 const month = p['เดือนปีที่ชำระ'] || '';
                 const amt = parseFloat(p['จำนวนเงินที่รับ']) || 0;
                 if (month) monthlyRevenue[month] = (monthlyRevenue[month] || 0) + amt;
@@ -1542,7 +1541,7 @@
                 last7Days.push(d.toISOString().split('T')[0]);
             }
             const dayCounts = last7Days.map(day => {
-                return attendance.filter(log => {
+                return adminAttendance.filter(log => {
                     const dStr = log['วันที่เข้าใช้งาน'] || '';
                     return dStr.startsWith(day);
                 }).length;
@@ -1577,14 +1576,14 @@
                 }
             });
 
-            // ตารางสมาชิก
-            renderMemberTable(members, attendance);
+            // ตารางสมาชิก - ส่ง payments เข้าไปด้วย
+            renderMemberTable(adminMembers, adminAttendance, adminPayments);
 
             // ตารางการเข้าใช้ล่าสุด
-            renderAdminAttendanceTable(attendance, members);
+            renderAdminAttendanceTable(adminAttendance, adminMembers);
 
             // ตารางการจ่ายเงินล่าสุด
-            renderAdminPaymentTable(payments, members);
+            renderAdminPaymentTable(adminPayments, adminMembers);
 
             // แจ้งเตือน Admin
             if (expiringCount > 0) {
@@ -1596,9 +1595,9 @@
         }
 
         // ================================================================
-        //  10.1 ตารางสมาชิก (Admin)
+        //  10.1 ตารางสมาชิก (Admin) - แก้ไขให้รับ payments ด้วย
         // ================================================================
-        function renderMemberTable(members, attendance) {
+        function renderMemberTable(members, attendance, payments) {
             const tbody = document.getElementById('memberTableBody');
             const searchInput = document.getElementById('memberSearchInput');
 
@@ -1689,7 +1688,7 @@
         }
 
         // ================================================================
-        //  SECTION 11: ระบบเพิ่มสมาชิก (Admin)
+        //  SECTION 11: ระบบเพิ่มสมาชิก (Admin) - แก้ไขให้โหลดใหม่
         // ================================================================
 
         function showAddMemberModal() {
@@ -1710,7 +1709,7 @@
                 'อายุ': document.getElementById('newMemberAge').value.trim(),
                 'ประเภทสมาชิก': document.getElementById('newMemberType').value,
                 'วันที่เริ่มสมัคร': document.getElementById('newMemberStartDate').value || new Date().toISOString().split('T')[0],
-                // คิวอาร์โค้ดจะสร้างอัตโนมัติหรือไม่ก็ได้
+                // คิวอาร์โค้ดไม่ต้องส่งก็ได้ (หรือจะให้สร้างก็ได้)
             };
 
             const result = await appendSheetData('ข้อมูลสมาชิก', newMember);
@@ -1725,7 +1724,16 @@
         });
 
         // ================================================================
-        //  SECTION 12: ฟอร์มบันทึกน้ำหนัก (Member)
+        //  SECTION 12: ฟังก์ชันรีเฟรช Admin Dashboard
+        // ================================================================
+        async function refreshAdminData() {
+            showAlert('🔄 กำลังโหลดข้อมูลใหม่...', 'info', 2000);
+            await loadAdminDashboard();
+            showAlert('✅ โหลดข้อมูลสำเร็จ!', 'success', 2000);
+        }
+
+        // ================================================================
+        //  SECTION 13: ฟอร์มบันทึกน้ำหนัก (Member)
         // ================================================================
         document.getElementById('weightForm').addEventListener('submit', function(e) {
             e.preventDefault();
@@ -1765,7 +1773,7 @@
         });
 
         // ================================================================
-        //  SECTION 13: ตรวจสอบ Session และ Auto-refresh
+        //  SECTION 14: ตรวจสอบ Session และ Auto-refresh
         // ================================================================
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -1785,7 +1793,7 @@
             }
         });
 
-        // Auto-refresh สำหรับ Member Dashboard และ Admin Dashboard (เฉพาะสถิติ)
+        // Auto-refresh สำหรับ Member Dashboard
         setInterval(async function() {
             const role = localStorage.getItem('gym_role');
             const memberId = localStorage.getItem('gym_member_id');
@@ -1804,10 +1812,8 @@
                     displayExpiryDate(memberId, payments);
                     displayPeakHoursChart(attendance);
                 }
-            } else if (role === 'admin') {
-                // ไม่ auto-refresh ทั้งหน้า เพราะอาจจะหนักเกินไป แต่เราสามารถ refresh เฉพาะสถิติได้
-                // เราไม่ทำ auto-refresh admin เพื่อความเสถียร
             }
+            // Admin ไม่ auto-refresh เพื่อความเสถียร
         }, 30000);
     </script>
 </body>
