@@ -77,7 +77,7 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- Dashboard สมาชิก (Member) -->
+    <!-- Dashboard สมาชิก (Member) – เปลี่ยนการ์ด "ใกล้หมดอายุ" เป็น "คนฉายาเดียวกัน" -->
     <!-- ============================================================ -->
     <div id="memberDashboard" class="min-h-screen bg-gray-50 dark:bg-gray-900 hidden">
         <nav class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-40">
@@ -91,12 +91,19 @@
             </div>
         </nav>
         <div class="max-w-7xl mx-auto px-4 py-8">
+            <!-- แถวที่ 1: สถิติรวม 4 การ์ด -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                 <div class="card-gym p-6"><div class="text-sm text-gray-500 dark:text-gray-400">👥 สมาชิกทั้งหมด</div><div id="totalMembers" class="text-3xl font-bold text-gray-800 dark:text-white">0</div></div>
                 <div class="card-gym p-6"><div class="text-sm text-gray-500 dark:text-gray-400">✅ เข้าวันนี้</div><div id="todayAttendance" class="text-3xl font-bold text-green-600 dark:text-green-400">0</div></div>
-                <div class="card-gym p-6"><div class="text-sm text-gray-500 dark:text-gray-400">⚠️ ใกล้หมดอายุ</div><div id="expiringSoon" class="text-3xl font-bold text-orange-500 dark:text-orange-400">0</div></div>
+                <!-- ★ เปลี่ยนจาก "ใกล้หมดอายุ" เป็น "คนฉายาเดียวกัน" ★ -->
+                <div class="card-gym p-6">
+                    <div class="text-sm text-gray-500 dark:text-gray-400">👥 คนฉายาเดียวกัน</div>
+                    <div id="sameTitleCount" class="text-3xl font-bold text-purple-600 dark:text-purple-400">0</div>
+                </div>
                 <div class="card-gym p-6"><div class="text-sm text-gray-500 dark:text-gray-400">🏅 ฉายาสูงสุด</div><div id="topTitle" class="text-xl font-bold text-purple-600 dark:text-purple-400">-</div></div>
             </div>
+
+            <!-- ส่วนที่เหลือของ Member Dashboard (เหมือนเดิม) -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-1">
                     <div class="card-gym p-6"><h3 class="font-bold text-lg mb-4 text-gray-800 dark:text-white">👤 ข้อมูลส่วนตัว</h3><div id="personalInfo" class="space-y-3"></div></div>
@@ -135,7 +142,7 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- Admin Dashboard -->
+    <!-- Admin Dashboard (ปรับขนาดปุ่ม "โหลดใหม่" ให้เล็กลง) -->
     <!-- ============================================================ -->
     <div id="adminDashboard" class="min-h-screen bg-gray-50 dark:bg-gray-900 hidden">
         <nav class="bg-white dark:bg-gray-800 shadow-sm sticky top-0 z-40">
@@ -165,14 +172,15 @@
                 <div class="card-gym p-6"><h3 class="font-bold text-lg mb-4 text-gray-800 dark:text-white">📊 การเข้าใช้ 7 วันล่าสุด</h3><canvas id="adminAttendanceChart" height="200"></canvas></div>
             </div>
 
-            <!-- ตารางสมาชิก -->
+            <!-- ตารางสมาชิก (ปรับขนาดปุ่ม "โหลดใหม่" ให้เล็กลง) -->
             <div class="card-gym p-6 mb-8">
                 <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
                     <h3 class="font-bold text-lg text-gray-800 dark:text-white">📋 รายชื่อสมาชิกทั้งหมด</h3>
                     <div class="flex gap-2">
-                        <input type="text" id="memberSearchInput" placeholder="ค้นหาชื่อหรือรหัส..." class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm">
-                        <button onclick="showAddMemberModal()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">+ เพิ่มสมาชิก</button>
-                        <button onclick="refreshAdminData()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition">🔄 โหลดใหม่</button>
+                        <input type="text" id="memberSearchInput" placeholder="ค้นหาชื่อหรือรหัส..." class="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm w-40">
+                        <button onclick="showAddMemberModal()" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">+ เพิ่มสมาชิก</button>
+                        <!-- ★ ปรับขนาดปุ่ม "โหลดใหม่" ให้เล็กลง ★ -->
+                        <button onclick="refreshAdminData()" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-semibold transition">🔄 โหลดใหม่</button>
                     </div>
                 </div>
                 <div class="admin-table-wrap">
@@ -224,7 +232,7 @@
     <div id="alertContainer" class="fixed top-4 right-4 z-50 space-y-2 max-w-sm w-full"></div>
 
     <!-- ============================================================ -->
-    <!-- JavaScript (แก้ไขเฉพาะส่วนกราฟ 7 วันล่าสุด) -->
+    <!-- JavaScript (ปรับฟังก์ชัน displayStatistics ให้แสดงจำนวนคนฉายาเดียวกัน) -->
     <!-- ============================================================ -->
     <script>
         // ================================================================
@@ -263,7 +271,7 @@
         async function fetchPayments() { return await fetchSheetData('บันทึกการจ่ายเงิน'); }
 
         // ================================================================
-        // ฟังก์ชันแปลงวันที่ (รองรับปี พ.ศ. และรูปแบบต่างๆ)
+        // ฟังก์ชันแปลงวันที่
         // ================================================================
         function parseDateFromSheet(dateStr) {
             if (!dateStr) return null;
@@ -484,7 +492,7 @@
         }
 
         // ================================================================
-        // Member Dashboard (ฟังก์ชันทั้งหมด)
+        // Member Dashboard
         // ================================================================
         let progressChartInstance=null, weightChartInstance=null, peakHoursChartInstance=null;
 
@@ -506,7 +514,8 @@
             displayLeaderboard(members, attendance, memberId);
             displayProgressChart(memberId, attendance);
             displayPeakHoursChart(attendance);
-            displayStatistics(members, attendance, payments);
+            // ★ เรียก displayStatistics โดยส่ง memberId และ title ไปด้วย
+            displayStatistics(members, attendance, payments, memberId, title);
             displayDisciplineScore(memberId, attendance);
             displayExpiryDate(memberId, payments);
             displayHealthStatus(memberId);
@@ -592,24 +601,46 @@
             });
         }
 
-        // ===== displayStatistics =====
-        function displayStatistics(members, attendance, payments) {
-            const active=members.filter(m=>m['ชื่อ นามสกุล'] && m['ชื่อ นามสกุล'].trim()!=='');
-            document.getElementById('totalMembers').textContent=active.length;
-            const today=new Date(); today.setHours(0,0,0,0);
-            let todayCount=0;
-            attendance.forEach(log=>{
-                const d=parseDateFromSheet(log['วันที่เข้าใช้งาน']||log['เวลาที่เข้าใช้งาน']);
-                if(d && isSameDate(d,today)) todayCount++;
+        // ================================================================
+        // ★ displayStatistics (ปรับให้แสดงจำนวนคนฉายาเดียวกัน)
+        // ================================================================
+        function displayStatistics(members, attendance, payments, currentMemberId, currentTitle) {
+            // สมาชิกทั้งหมด (เฉพาะที่มีชื่อ)
+            const active = members.filter(m => m['ชื่อ นามสกุล'] && m['ชื่อ นามสกุล'].trim() !== '');
+            document.getElementById('totalMembers').textContent = active.length;
+
+            // เข้าวันนี้
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            let todayCount = 0;
+            attendance.forEach(log => {
+                const d = parseDateFromSheet(log['วันที่เข้าใช้งาน'] || log['เวลาที่เข้าใช้งาน']);
+                if (d && isSameDate(d, today)) todayCount++;
             });
-            document.getElementById('todayAttendance').textContent=todayCount;
-            const expiring=countExpiringSoon(payments, members);
-            document.getElementById('expiringSoon').textContent=expiring;
-            const titleCount={};
-            active.forEach(m=>{ const {title}=calculatePointsAndTitle(m['รหัสสมาชิก'], attendance); titleCount[title]=(titleCount[title]||0)+1; });
-            let maxTitle='-', maxCount=0;
-            Object.entries(titleCount).forEach(([t,c])=>{ if(c>maxCount){maxCount=c; maxTitle=t;} });
-            document.getElementById('topTitle').textContent=maxTitle;
+            document.getElementById('todayAttendance').textContent = todayCount;
+
+            // ★ เปลี่ยนจาก "ใกล้หมดอายุ" เป็น "คนฉายาเดียวกัน"
+            // นับจำนวนสมาชิกที่มีฉายาเดียวกันกับสมาชิกที่ล็อกอิน (รวมตัวเองด้วย)
+            let sameTitleCount = 0;
+            if (currentTitle) {
+                active.forEach(m => {
+                    const { title } = calculatePointsAndTitle(m['รหัสสมาชิก'], attendance);
+                    if (title === currentTitle) sameTitleCount++;
+                });
+            }
+            document.getElementById('sameTitleCount').textContent = sameTitleCount;
+
+            // ฉายาสูงสุด
+            const titleCount = {};
+            active.forEach(m => {
+                const { title } = calculatePointsAndTitle(m['รหัสสมาชิก'], attendance);
+                titleCount[title] = (titleCount[title] || 0) + 1;
+            });
+            let maxTitle = '-', maxCount = 0;
+            Object.entries(titleCount).forEach(([t, c]) => {
+                if (c > maxCount) { maxCount = c; maxTitle = t; }
+            });
+            document.getElementById('topTitle').textContent = maxTitle;
         }
 
         // ===== displayDisciplineScore =====
@@ -711,7 +742,7 @@
         }
 
         // ================================================================
-        // Admin Dashboard (แก้ไขเฉพาะกราฟ 7 วันล่าสุด)
+        // Admin Dashboard
         // ================================================================
         let adminRevenueChartInstance=null, adminAttendanceChartInstance=null;
         let adminMembers=[], adminAttendance=[], adminPayments=[];
@@ -726,7 +757,6 @@
             adminAttendance = await fetchAttendance();
             adminPayments = await fetchPayments();
 
-            // สถิติ
             document.getElementById('adminTotalMembers').textContent = adminMembers.length;
 
             const today = new Date();
@@ -799,18 +829,13 @@
                 }
             });
 
-            // ================================================================
-            // === กราฟ 7 วันล่าสุด (แก้ไขใหม่ตามที่ขอ) ===
-            // ================================================================
-            // 1. สร้างรายการวันที่ 7 วันล่าสุด
+            // === กราฟ 7 วันล่าสุด ===
             const last7Days = [];
             for (let i = 6; i >= 0; i--) {
                 const d = new Date();
                 d.setDate(d.getDate() - i);
-                last7Days.push(d.toISOString().split('T')[0]); // "YYYY-MM-DD"
+                last7Days.push(d.toISOString().split('T')[0]);
             }
-
-            // 2. นับจำนวนการเข้าใช้ในแต่ละวัน โดยใช้ parseDateFromSheet
             const dayCounts = last7Days.map(day => {
                 const targetDate = new Date(day);
                 targetDate.setHours(0, 0, 0, 0);
@@ -824,23 +849,17 @@
                 }).length;
             });
 
-            // 3. แสดงข้อมูลใน Console เพื่อ Debug
-            console.log('📊 7 Days Data (แก้ไขแล้ว):', last7Days, dayCounts);
-
-            // 4. ทำลายกราฟเก่าก่อนสร้างใหม่
             if (adminAttendanceChartInstance) {
                 adminAttendanceChartInstance.destroy();
                 adminAttendanceChartInstance = null;
             }
-
-            // 5. สร้างกราฟใหม่
             const attCtx = document.getElementById('adminAttendanceChart').getContext('2d');
             adminAttendanceChartInstance = new Chart(attCtx, {
                 type: 'line',
                 data: {
                     labels: last7Days.map(d => {
                         const parts = d.split('-');
-                        return `${parts[2]}/${parts[1]}`; // แสดงเป็น DD/MM
+                        return `${parts[2]}/${parts[1]}`;
                     }),
                     datasets: [{
                         label: 'จำนวนเข้าใช้',
@@ -881,7 +900,6 @@
             renderAdminAttendanceTable(adminAttendance, adminMembers);
             renderAdminPaymentTable(adminPayments, adminMembers);
 
-            // === แจ้งเตือน ===
             if (expiringCount > 0) {
                 showAlert(`⚠️ มีสมาชิก ${expiringCount} คนใกล้หมดอายุภายใน 7 วัน (คลิกที่การ์ดเพื่อดูรายละเอียด)`, 'warning', 6000);
             }
@@ -1015,19 +1033,38 @@
                 const payments=await fetchPayments();
                 const found=findMemberById(members, memberId);
                 if(found){
-                    displayStatistics(members, attendance, payments);
-                    const {points,title}=calculatePointsAndTitle(memberId, attendance);
+                    // ★ อัปเดตเฉพาะส่วนที่เกี่ยวข้อง
+                    const { points, title } = calculatePointsAndTitle(memberId, attendance);
                     displayPersonalInfo(found, points, title);
                     displayLeaderboard(members, attendance, memberId);
                     displayDisciplineScore(memberId, attendance);
                     displayExpiryDate(memberId, payments);
                     displayPeakHoursChart(attendance);
+                    // อัปเดตสถิติรวม
+                    const active = members.filter(m => m['ชื่อ นามสกุล'] && m['ชื่อ นามสกุล'].trim() !== '');
+                    document.getElementById('totalMembers').textContent = active.length;
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    let todayCount = 0;
+                    attendance.forEach(log => {
+                        const d = parseDateFromSheet(log['วันที่เข้าใช้งาน'] || log['เวลาที่เข้าใช้งาน']);
+                        if (d && isSameDate(d, today)) todayCount++;
+                    });
+                    document.getElementById('todayAttendance').textContent = todayCount;
+                    // ★ อัปเดตจำนวนคนฉายาเดียวกัน
+                    let sameTitleCount = 0;
+                    if (title) {
+                        active.forEach(m => {
+                            const { title: t } = calculatePointsAndTitle(m['รหัสสมาชิก'], attendance);
+                            if (t === title) sameTitleCount++;
+                        });
+                    }
+                    document.getElementById('sameTitleCount').textContent = sameTitleCount;
                 }
             }
         }, 30000);
 
-        console.log('✅ Gym Analytics Pro (แก้ไขกราฟ 7 วันล่าสุด) โหลดสำเร็จ');
-        console.log('📊 7 Days Chart ถูกสร้างด้วยข้อมูลล่าสุด');
+        console.log('✅ Gym Analytics Pro (ปรับปรุงปุ่มโหลดใหม่ + คนฉายาเดียวกัน) โหลดสำเร็จ');
     </script>
 </body>
 </html>
